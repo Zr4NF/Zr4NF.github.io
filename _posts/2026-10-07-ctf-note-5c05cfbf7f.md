@@ -1,8 +1,11 @@
 ---
 layout: post
-title: "2026 / ctf+ / 高等数学"
+title: "2026 / ctf+ / Advanced Mathematics"
 date: 2026-10-07 20:05:00 +0800
-tags: ["CTF", "题解"]
+tags: ["CTF", "Write-up"]
+description: "Notes and solution for Advanced Mathematics from ctf+ (2026)."
+source_folder: "Write-ups/2026/ctf+"
+lang: zh-CN
 ---
 {% raw %}
 # 源码

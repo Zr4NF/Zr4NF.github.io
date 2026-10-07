@@ -1,8 +1,11 @@
 ---
 layout: post
-title: "how2heap 2.35 · large_bin_attack"
+title: "how2heap 2.35 \u00b7 large_bin_attack"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
+description: "Source analysis and debugging notes for large_bin_attack in glibc 2.35."
+source_folder: "PWN/Heap Exploitation/how2heap Debugging/2.35/large_bin_attack"
+lang: zh-CN
 ---
 {% raw %}
 # POC

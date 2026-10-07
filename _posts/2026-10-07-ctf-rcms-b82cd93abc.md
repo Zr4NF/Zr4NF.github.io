@@ -2,7 +2,10 @@
 layout: post
 title: "2025 / das / rcms"
 date: 2026-10-07 20:05:00 +0800
-tags: ["CTF", "题解"]
+tags: ["CTF", "Write-up"]
+description: "Notes and solution for rcms from das (2025)."
+source_folder: "Write-ups/2025/das/rcms"
+lang: zh-CN
 ---
 {% raw %}
 这题主要难度在泄露libc版本，第一次远程打poison没过有点懵，仔细一想可能是低版本libc，没有指针保护。原题libc为2.27，可以随意两次tc poison泄pie实现任意地址读与任意地址写后，打hook。这里用2.39打。

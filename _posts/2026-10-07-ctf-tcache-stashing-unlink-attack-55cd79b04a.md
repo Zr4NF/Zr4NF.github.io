@@ -1,8 +1,11 @@
 ---
 layout: post
-title: "how2heap 2.35 · tcache_stashing_unlink_attack"
+title: "how2heap 2.35 \u00b7 tcache_stashing_unlink_attack"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
+description: "Source analysis and debugging notes for tcache_stashing_unlink_attack in glibc 2.35."
+source_folder: "PWN/Heap Exploitation/how2heap Debugging/2.35/tcache_stashing_unlink_attack"
+lang: zh-CN
 ---
 {% raw %}
 # POC

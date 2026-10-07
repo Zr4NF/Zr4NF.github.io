@@ -3,6 +3,9 @@ layout: post
 title: "TLS canary"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
+description: "Notes on thread-local storage and stack canaries."
+source_folder: "PWN/Stack Exploitation"
+lang: zh-CN
 ---
 {% raw %}
 

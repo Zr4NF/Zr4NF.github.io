@@ -1,8 +1,11 @@
 ---
 layout: post
-title: "爆破脚本"
+title: "Brute-force Scripts"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
+description: "Brute-force scripting notes."
+source_folder: "PWN"
+lang: zh-CN
 ---
 {% raw %}
 # 结构

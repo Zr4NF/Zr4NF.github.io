@@ -1,8 +1,11 @@
 ---
 layout: post
-title: "本地libc search使用"
+title: "Using Local libc Search"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
+description: "A local libc search workflow for identifying library versions."
+source_folder: "PWN"
+lang: zh-CN
 ---
 {% raw %}
 ```

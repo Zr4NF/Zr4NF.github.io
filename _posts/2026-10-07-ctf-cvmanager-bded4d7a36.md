@@ -2,7 +2,10 @@
 layout: post
 title: "2025 / das / CVmanager"
 date: 2026-10-07 20:05:00 +0800
-tags: ["CTF", "题解"]
+tags: ["CTF", "Write-up"]
+description: "Notes and solution for CVmanager from das (2025)."
+source_folder: "Write-ups/2025/das/CVmanager"
+lang: zh-CN
 ---
 {% raw %}
 # checksec

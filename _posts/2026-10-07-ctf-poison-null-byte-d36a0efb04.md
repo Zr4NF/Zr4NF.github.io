@@ -1,8 +1,11 @@
 ---
 layout: post
-title: "how2heap 2.35 · poison_null_byte"
+title: "how2heap 2.35 \u00b7 poison_null_byte"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
+description: "Source analysis and debugging notes for poison_null_byte in glibc 2.35."
+source_folder: "PWN/Heap Exploitation/how2heap Debugging/2.35/poison_null_byte"
+lang: zh-CN
 ---
 {% raw %}
 # 源码

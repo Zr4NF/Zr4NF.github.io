@@ -1,8 +1,11 @@
 ---
 layout: post
-title: "hourse of系列"
+title: "House of Techniques"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
+description: "Notes on House of heap exploitation techniques."
+source_folder: "PWN/Heap Exploitation"
+lang: zh-CN
 ---
 {% raw %}
 

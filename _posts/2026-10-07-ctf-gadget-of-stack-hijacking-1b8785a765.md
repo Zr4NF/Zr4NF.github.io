@@ -3,6 +3,9 @@ layout: post
 title: "Gadget of Stack Hijacking"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
+description: "Stack hijacking gadgets and control-flow techniques."
+source_folder: "PWN"
+lang: zh-CN
 ---
 {% raw %}
 `getkeyserv_handle+576`

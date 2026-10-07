@@ -1,8 +1,11 @@
 ---
 layout: post
-title: "how2heap 2.35 · fastbin_dup_into_stack"
+title: "how2heap 2.35 \u00b7 fastbin_dup_into_stack"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
+description: "Source analysis and debugging notes for fastbin_dup_into_stack in glibc 2.35."
+source_folder: "PWN/Heap Exploitation/how2heap Debugging/2.35/fastbin_dup_into_stack"
+lang: zh-CN
 ---
 {% raw %}
 # 源码

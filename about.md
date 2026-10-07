@@ -1,19 +1,19 @@
 ---
 layout: post
-title: 关于
+title: About
 permalink: /about/
-description: Zr4NF 的安全研究与技术笔记。
+description: Security research and technical notes by Zr4NF.
 ---
-这里记录合约安全、二进制分析与 Web 安全相关的学习和研究。
+This blog documents my learning and research in smart contract security, binary exploitation and web security.
 
-希望每一篇笔记都能留下清楚的问题、可核查的依据，以及有用的推导。
+Each note aims to capture a clear question, verifiable evidence and useful reasoning.
 
-## 关注方向
+## Areas of Interest
 
-- **Web3 / 合约安全**：EVM、Solidity、AMM 与资金流分析。
-- **PWN / 二进制**：程序行为、内存管理与漏洞成因。
-- **Web / 安全实践**：应用逻辑、源码审计与问题复盘。
+- **Web3 / Smart Contract Security**: EVM, Solidity, AMMs and fund-flow analysis.
+- **PWN / Binary Exploitation**: Program behavior, memory management and vulnerability analysis.
+- **Web / Security**: Application logic, source code auditing and case studies.
 
-## 联系
+## Contact
 
 [GitHub · Zr4NF](https://github.com/Zr4NF)

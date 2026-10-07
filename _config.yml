@@ -1,8 +1,8 @@
 title: Zr4NF
-description: 安全研究与技术笔记
+description: Security research and technical notes
 url: https://zr4nf.github.io
 baseurl: ""
-lang: zh-CN
+lang: en
 timezone: Asia/Shanghai
 permalink: /posts/:title/
 markdown: kramdown
@@ -20,3 +20,4 @@ exclude:
   - Gemfile
   - Gemfile.lock
   - vendor
+

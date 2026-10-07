@@ -3,5 +3,16 @@ layout: default
 title: Archive
 permalink: /archive/
 ---
-<section class="page-heading"><p class="eyebrow">CTF / FOLDERS</p><h1>Archive</h1><p class="intro">71 notes organized by their original folders.</p></section>
-<section class="folder-tree" aria-label="Notes by folder">{% include ctf-folders.html %}</section>
+<section class="page-heading"><p class="eyebrow">NOTES / FOLDERS</p><h1>Archive</h1><p class="intro">{{ site.posts | size }} notes organized by category and folder.</p></section>
+<section class="folder-tree" aria-label="Notes by folder">{% assign blockchain_posts = site.posts | where_exp: "post", "post.tags contains 'Blockchain'" %}
+{% if blockchain_posts.size > 0 %}
+<details class="folder" open><summary><span>Blockchain</span><span class="folder-count">{{ blockchain_posts | size }} notes</span></summary><div class="folder-content">
+{% assign blockchain_groups = blockchain_posts | group_by: "source_folder" %}
+{% for group in blockchain_groups %}
+<details class="folder" open><summary><span>{{ group.name | split: '/' | last | escape }}</span><span class="folder-count">{{ group.items | size }} notes</span></summary><div class="folder-content">
+{% for post in group.items %}<a class="folder-note" href="{{ post.url | relative_url }}">{{ post.title | escape }}</a>{% endfor %}
+</div></details>
+{% endfor %}
+</div></details>
+{% endif %}
+{% include ctf-folders.html %}</section>

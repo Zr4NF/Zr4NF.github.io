@@ -1,0 +1,22 @@
+title: Zr4NF
+description: 安全研究与技术笔记
+url: https://zr4nf.github.io
+baseurl: ""
+lang: zh-CN
+timezone: Asia/Shanghai
+permalink: /posts/:title/
+markdown: kramdown
+highlighter: rouge
+kramdown:
+  input: GFM
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: post
+exclude:
+  - README.md
+  - Gemfile
+  - Gemfile.lock
+  - vendor

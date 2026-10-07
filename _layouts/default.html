@@ -9,6 +9,7 @@
   <link rel="canonical" href="{{ page.url | absolute_url }}">
   <link rel="icon" href="{{ '/assets/favicon.svg' | relative_url }}?v=blue-20261007" type="image/svg+xml">
   <link rel="stylesheet" href="{{ '/assets/style.css' | relative_url }}?v=blue-20261007">
+{% if page.math %}<script defer src="https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-AMS_CHTML"></script>{% endif %}
 </head>
 <body>
   <a class="skip" href="#main">跳到正文</a>
@@ -19,6 +20,7 @@
         <a {% if page.url == '/' %}aria-current="page"{% endif %} href="{{ '/' | relative_url }}">文章</a>
         <a {% if page.url == '/archive/' %}aria-current="page"{% endif %} href="{{ '/archive/' | relative_url }}">归档</a>
         <a {% if page.url == '/about/' %}aria-current="page"{% endif %} href="{{ '/about/' | relative_url }}">关于</a>
+        <a {% if page.url == '/ctf/' %}aria-current="page"{% endif %} href="{{ '/ctf/' | relative_url }}">CTF</a>
         <a href="https://github.com/Zr4NF">GitHub</a>
       </nav>
     </header>

@@ -1,0 +1,10 @@
+---
+layout: default
+---
+<article class="post">
+  <a class="back" href="{{ '/' | relative_url }}">全部文章</a>
+  <div class="post-meta"><time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: '%Y.%m.%d' }}</time>{% for tag in page.tags %}<span class="tag">{{ tag | escape }}</span>{% endfor %}</div>
+  <h1>{{ page.title | escape }}</h1>
+  {% if page.description %}<p class="intro">{{ page.description | escape }}</p>{% endif %}
+  <div class="prose">{{ content }}</div>
+</article>

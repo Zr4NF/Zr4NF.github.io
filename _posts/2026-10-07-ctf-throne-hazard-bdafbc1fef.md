@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "2026 / polar / Throne Hazard"
+title: "Throne Hazard"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "Write-up"]
 description: "Notes and solution for Throne Hazard from polar (2026)."

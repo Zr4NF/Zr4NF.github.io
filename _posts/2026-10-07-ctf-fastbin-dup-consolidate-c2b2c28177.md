@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "how2heap 2.35 \u00b7 fastbin_dup_consolidate"
+title: "fastbin_dup_consolidate"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
 description: "Source analysis and debugging notes for fastbin_dup_consolidate in glibc 2.35."

@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "2026 / sh / Large Manager"
+title: "Large Manager"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "Write-up"]
 description: "Notes and solution for Large Manager from sh (2026)."

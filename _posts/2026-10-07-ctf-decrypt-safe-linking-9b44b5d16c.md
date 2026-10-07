@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "how2heap 2.35 \u00b7 decrypt_safe_linking"
+title: "decrypt_safe_linking"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
 description: "Source analysis and debugging notes for decrypt_safe_linking in glibc 2.35."

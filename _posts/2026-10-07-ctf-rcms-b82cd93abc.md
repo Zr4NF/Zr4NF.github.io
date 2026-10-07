@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "2025 / das / rcms"
+title: "rcms"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "Write-up"]
 description: "Notes and solution for rcms from das (2025)."

@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "how2heap 2.35 \u00b7 tcache_house_of_spirit"
+title: "tcache_house_of_spirit"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
 description: "Source analysis and debugging notes for tcache_house_of_spirit in glibc 2.35."

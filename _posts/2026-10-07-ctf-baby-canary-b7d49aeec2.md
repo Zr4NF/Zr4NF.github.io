@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "2026 / sh / baby_canary"
+title: "baby_canary"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "Write-up"]
 description: "Notes and solution for baby_canary from sh (2026)."

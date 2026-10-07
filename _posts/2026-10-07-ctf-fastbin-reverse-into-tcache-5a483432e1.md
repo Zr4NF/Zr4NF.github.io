@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "how2heap 2.35 \u00b7 fastbin_reverse_into_tcache"
+title: "fastbin_reverse_into_tcache"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
 description: "Source analysis and debugging notes for fastbin_reverse_into_tcache in glibc 2.35."

@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "2026 / furry / nosystem"
+title: "nosystem"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "Write-up"]
 description: "Notes and solution for nosystem from furry (2026)."

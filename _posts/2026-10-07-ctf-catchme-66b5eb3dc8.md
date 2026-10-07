@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "2026 CISCN CCB Semifinals / catchme"
+title: "catchme"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "Write-up"]
 description: "Notes and solution for catchme from 2026 CISCN CCB Semifinals (2026)."

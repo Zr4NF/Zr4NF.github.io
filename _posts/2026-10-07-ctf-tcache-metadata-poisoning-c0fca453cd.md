@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "how2heap 2.35 \u00b7 tcache_metadata_poisoning"
+title: "tcache_metadata_poisoning"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
 description: "Source analysis and debugging notes for tcache_metadata_poisoning in glibc 2.35."

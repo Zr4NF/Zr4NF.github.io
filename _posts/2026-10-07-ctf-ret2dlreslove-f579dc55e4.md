@@ -3,7 +3,7 @@ layout: post
 title: "ret2dlreslove"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
-description: "Notes on ret2dlresolve and dynamic symbol resolution."
+description: "整理 ret2dlresolve 与动态符号解析的利用思路。"
 source_folder: "PWN/Stack Exploitation/ret2dlreslove"
 lang: zh-CN
 ---

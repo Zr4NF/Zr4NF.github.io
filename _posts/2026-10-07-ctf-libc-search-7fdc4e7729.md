@@ -3,7 +3,7 @@ layout: post
 title: "Using Local libc Search"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
-description: "A local libc search workflow for identifying library versions."
+description: "记录通过本地 libc 数据库识别库版本的流程。"
 source_folder: "PWN"
 lang: zh-CN
 ---

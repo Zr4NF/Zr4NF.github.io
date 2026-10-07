@@ -3,7 +3,7 @@ layout: post
 title: "Throne Hazard"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "Write-up"]
-description: "Notes and solution for Throne Hazard from polar (2026)."
+description: "记录 2026 年 polar 比赛中 Throne Hazard 题目的分析与解题过程。"
 source_folder: "Write-ups/2026/polar/PWN"
 lang: zh-CN
 ---

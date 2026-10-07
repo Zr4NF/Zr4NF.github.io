@@ -3,7 +3,7 @@ layout: post
 title: "Gadget of Stack Hijacking"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
-description: "Stack hijacking gadgets and control-flow techniques."
+description: "记录栈劫持中的 gadget 与控制流利用技巧。"
 source_folder: "PWN"
 lang: zh-CN
 ---

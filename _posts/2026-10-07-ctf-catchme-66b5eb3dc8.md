@@ -3,7 +3,7 @@ layout: post
 title: "catchme"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "Write-up"]
-description: "Notes and solution for catchme from 2026 CISCN CCB Semifinals (2026)."
+description: "记录 2026ciscnccb半决 比赛中 catchme 题目的分析与解题过程。"
 source_folder: "Write-ups/2026/2026 CISCN CCB Semifinals"
 lang: zh-CN
 ---

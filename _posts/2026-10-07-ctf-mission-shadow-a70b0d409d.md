@@ -3,7 +3,7 @@ layout: post
 title: "mission shadow"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "Write-up"]
-description: "Notes and solution for mission shadow from ctf+ (2026)."
+description: "记录 2026 年 ctf+ 比赛中 mission shadow 题目的分析与解题过程。"
 source_folder: "Write-ups/2026/ctf+"
 lang: zh-CN
 ---

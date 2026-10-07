@@ -3,7 +3,7 @@ layout: post
 title: "Brute-force Scripts"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
-description: "Brute-force scripting notes."
+description: "整理爆破脚本的编写与使用方法。"
 source_folder: "PWN"
 lang: zh-CN
 ---

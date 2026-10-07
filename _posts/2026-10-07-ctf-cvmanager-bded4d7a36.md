@@ -3,7 +3,7 @@ layout: post
 title: "CVmanager"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "Write-up"]
-description: "Notes and solution for CVmanager from das (2025)."
+description: "记录 2025 年 das 比赛中 CVmanager 题目的分析与解题过程。"
 source_folder: "Write-ups/2025/das/CVmanager"
 lang: zh-CN
 ---

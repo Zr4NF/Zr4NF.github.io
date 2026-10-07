@@ -4,7 +4,7 @@ title: AIC–NEX Attack Analysis
 date: 2026-10-07 21:02:00 +0800
 permalink: /posts/aic-nex-attack-analysis/
 tags: [Blockchain, Audit, Bytecode Analysis]
-description: NEX transfer logic audit and attack contract bytecode analysis, with a linked HTML report on fund flows and reserve changes.
+description: "结合 NEX 转账逻辑审计与攻击合约字节码逆向，分析漏洞根因和完整调用流程，并附资金流与储备变化的 HTML 报告。"
 source_folder: Blockchain/AIC-NEX
 lang: zh-CN
 ---

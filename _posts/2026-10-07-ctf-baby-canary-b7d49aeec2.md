@@ -3,7 +3,7 @@ layout: post
 title: "baby_canary"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "Write-up"]
-description: "Notes and solution for baby_canary from sh (2026)."
+description: "记录 2026 年 sh 比赛中 baby_canary 题目的分析与解题过程。"
 source_folder: "Write-ups/2026/sh/baby_canary"
 lang: zh-CN
 ---

@@ -2,11 +2,11 @@
 layout: post
 title: About
 permalink: /about/
-description: Security research and technical notes by Zr4NF.
+description: Zr4NF 的安全研究与技术笔记。
 ---
-This blog documents my learning and research in smart contract security, binary exploitation and web security.
+这个博客记录我在智能合约安全、二进制利用与 Web 安全方向的学习和研究。
 
-Each note aims to capture a clear question, verifiable evidence and useful reasoning.
+每篇笔记尽量写清问题、可核查的依据与推导过程。
 
 ## Areas of Interest
 

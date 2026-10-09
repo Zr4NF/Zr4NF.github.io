@@ -63,7 +63,7 @@ html{scroll-padding-top:6rem}
 
 /* Markdown fenced code blocks. */
 .page__content pre{
-  font-size:.75em;
+  font-size:clamp(12.5px,.65rem,14px);
   font-style:italic;
   line-height:1.65;
 }

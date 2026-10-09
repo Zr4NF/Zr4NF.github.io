@@ -5,6 +5,7 @@ $sans-serif: "Maple Mono NL NF CN", monospace;
 $serif: "Maple Mono NL NF CN", monospace;
 $monospace: "Maple Mono NL NF CN", monospace;
 @import "minimal-mistakes/skins/{{ site.minimal_mistakes_skin | default: 'default' }}";
+$primary-color: #69b4ff;
 $link-color: #69b4ff;
 $masthead-link-color-hover: #69b4ff;
 @import "minimal-mistakes";

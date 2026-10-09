@@ -49,3 +49,14 @@ html{scroll-padding-top:6rem}
     overflow-y:auto;
   }
 }
+
+/* Markdown fenced code blocks. */
+.page__content pre{
+  font-size:.75rem;
+  font-style:italic;
+  line-height:1.65;
+}
+.page__content pre code{
+  font-size:inherit;
+  font-style:inherit;
+}

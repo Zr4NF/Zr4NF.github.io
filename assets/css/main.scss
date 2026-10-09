@@ -55,9 +55,12 @@ html{scroll-padding-top:6rem}
   }
 }
 
+/* Scale article text and fenced code down together. */
+.page__content{font-size:.9em}
+
 /* Markdown fenced code blocks. */
 .page__content pre{
-  font-size:.75rem;
+  font-size:.675rem;
   font-style:italic;
   line-height:1.65;
 }

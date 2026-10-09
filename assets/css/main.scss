@@ -31,3 +31,21 @@ $masthead-link-color-hover: #69b4ff;
 .toc .active a:hover{
   @include yiq-contrasted($active-color);
 }
+
+/* Keep the theme masthead visible on every page. */
+.masthead{
+  position:sticky;
+  top:0;
+  z-index:100;
+  background-color:$background-color;
+  animation:none;
+}
+html{scroll-padding-top:6rem}
+.page__content :is(h1,h2,h3,h4,h5,h6){scroll-margin-top:6rem}
+@media(min-width:1024px){
+  .sidebar.sticky,.sidebar__right.sticky{
+    top:6rem;
+    max-height:calc(100vh - 7rem);
+    overflow-y:auto;
+  }
+}

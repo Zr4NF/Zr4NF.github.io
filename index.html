@@ -11,7 +11,7 @@ layout: default
   {% assign aic_posts = site.posts | where: "slug", "aic-nex-attack-analysis" %}
   {% assign ret2dlresolve_posts = site.posts | where: "slug", "ctf-ret2dlreslove-f579dc55e4" %}
   {% assign house_posts = site.posts | where: "slug", "ctf-hourse-of-c0f00d13c0" %}
-  {% assign remaining_posts = site.posts | where_exp: "post", "post.slug != 'aic-nex-attack-analysis' and post.slug != 'ctf-ret2dlreslove-f579dc55e4' and post.slug != 'ctf-hourse-of-c0f00d13c0'" %}
+  {% assign remaining_posts = site.posts | where_exp: "post", "post.slug != 'aic-nex-attack-analysis'" | where_exp: "post", "post.slug != 'ctf-ret2dlreslove-f579dc55e4'" | where_exp: "post", "post.slug != 'ctf-hourse-of-c0f00d13c0'" %}
   {% assign ordered_posts = aic_posts | concat: ret2dlresolve_posts | concat: house_posts | concat: remaining_posts %}
   {% for post in ordered_posts %}
   <article class="article-row">

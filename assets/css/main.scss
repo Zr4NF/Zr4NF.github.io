@@ -8,11 +8,6 @@ $monospace: "Maple Mono NL NF CN", monospace;
 $primary-color: #69b4ff;
 $link-color: #69b4ff;
 $masthead-link-color-hover: #69b4ff;
-/* Smaller type across the theme’s responsive layouts. */
-$doc-font-size: 14px;
-$doc-font-size-medium: 16px;
-$doc-font-size-large: 18px;
-$doc-font-size-x-large: 20px;
 @import "minimal-mistakes";
 @font-face{font-family:"Maple Mono NL NF CN";src:url("/assets/fonts/maple-mono-nl-nf-cn-regular.woff2") format("woff2");font-style:normal;font-weight:100 500;font-display:swap;unicode-range:U+2E80-9FFF,U+F900-FAFF,U+20000-3FFFF}
 @font-face{font-family:"Maple Mono NL NF CN";src:url("/assets/fonts/maple-mono-nl-nf-cn-regular-base.woff2") format("woff2");font-style:normal;font-weight:100 500;font-display:swap;unicode-range:U+0000-2E7F,U+A000-F8FF,U+FB00-1FFFF,U+40000-10FFFF}
@@ -56,11 +51,11 @@ html{scroll-padding-top:6rem}
 }
 
 /* Scale article text and fenced code down together. */
-.page__content{font-size:.9em}
+.page__content{font-size:calc(.9rem - 1.8px)}
 
 /* Markdown fenced code blocks. */
 .page__content pre{
-  font-size:.675rem;
+  font-size:calc(.675rem - 1.35px);
   font-style:italic;
   line-height:1.65;
 }

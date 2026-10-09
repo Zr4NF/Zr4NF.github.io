@@ -21,3 +21,13 @@ $masthead-link-color-hover: #69b4ff;
 .folder-tree .folder-count{margin-inline-start:.75em;font-size:.75em;color:$muted-text-color}
 .folder-tree .folder-note{display:block;padding:.3em .5em;color:$link-color}
 .folder-tree .folder-note:hover{text-decoration:underline}
+
+/* TOC interaction: preserve text and background colors. */
+.toc .active a,.toc__menu a:hover{
+  color:$muted-text-color;
+  background-color:transparent;
+}
+.toc__menu a:hover{
+  text-decoration:underline;
+  text-underline-offset:.2em;
+}

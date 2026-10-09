@@ -50,12 +50,20 @@ html{scroll-padding-top:6rem}
   }
 }
 
-/* Scale article text and fenced code down together. */
-.page__content{font-size:calc(.9rem - 1.8px)}
+/* Article pages: enlarge both sidebars and keep the content compact. */
+.layout--single .sidebar p,
+.layout--single .sidebar li,
+.layout--single .toc__menu,
+.layout--single .toc .nav__title{
+  font-size:clamp(15px,.8rem,18px);
+}
+.layout--single .page__content{
+  font-size:clamp(15px,.8rem,17px);
+}
 
 /* Markdown fenced code blocks. */
 .page__content pre{
-  font-size:calc(.675rem - 1.35px);
+  font-size:.75em;
   font-style:italic;
   line-height:1.65;
 }

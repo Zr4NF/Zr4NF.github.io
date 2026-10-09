@@ -1,13 +1,17 @@
 ---
-layout: post
+layout: single
 title: "Using Local libc Search"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
 description: "记录通过本地 libc 数据库识别库版本的流程。"
 source_folder: "PWN"
 lang: zh-CN
+excerpt: "记录通过本地 libc 数据库识别库版本的流程。"
 ---
 {% raw %}
+
+# Using Local libc Search
+
 ```
 from LibcSearcher import *
 
@@ -19,4 +23,5 @@ puts_offset = libc.dump("puts")
 system_offset = libc.dump("system")
 binsh_offset = libc.dump("str_bin_sh")
 ```
+
 {% endraw %}

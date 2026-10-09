@@ -1,13 +1,15 @@
 ---
-layout: post
+layout: single
 title: "large_bin_attack"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
 description: "记录 glibc 2.35 中 large_bin_attack 的源码分析与调试过程。"
 source_folder: "PWN/Heap Exploitation/how2heap Debugging/2.35/large_bin_attack"
 lang: zh-CN
+excerpt: "记录 glibc 2.35 中 large_bin_attack 的源码分析与调试过程。"
 ---
 {% raw %}
+
 # POC
 
 ```c
@@ -107,9 +109,13 @@ int main(){
 }
 
 ```
+
 该利用需要能覆写被free的chunk的bk_nextsize指针,通过利用`_int_malloc`中对unsorted bins整理的代码段，向任意地址写一个可控堆地址.
+
 # 调试过程
+
 ## 1.申请两个large chunk
+
 ```c
 size_t *p1 = malloc(0x428);
 size_t *g1 = malloc(0x18);
@@ -117,31 +123,42 @@ size_t *g1 = malloc(0x18);
 size_t *p2 = malloc(0x418);
 size_t *g2 = malloc(0x18);
 ```
+
 ![屏幕截图 2026-02-21 112329](/assets/ctf/98c4ba135f4832cad59f.webp)
+
 ## 2.一个放入large bins，一个unsorted bins
+
 ```
 free(p1);
 size_t *g3 = malloc(0x438);
 free(p2);
 ```
+
 这里注意两个chunk的大小，在unsorted bin中的chunk的size需要更小，使之在进入largebin时被放在largebin链表头（largebin的nextsize指针按size降序排列）
 
 同时注意这里chunk的size的选择，要考虑largebin的分桶规则，两个chunk需要在同一个链表中才能完成攻击。
 ![屏幕截图 2026-02-21 234153](/assets/ctf/48c211281ccfc15effe5.webp)
+
 ## 3.VULNERABILITY
 写入(目标地址-0x20)，覆盖bk_nextsize指针。
+
 ```
 p1[3] = (size_t)((&target)-4);
 ```
+
 ![屏幕截图 2026-02-21 112519](/assets/ctf/cdc857306d9d65fa859c.webp)
+
 ## 4.触发
 将unsorted bins的chunk放入large bins。
+
 ```
 size_t *g4 = malloc(0x438);
 ```
+
 ![屏幕截图 2026-02-21 133205](/assets/ctf/b8263ec2de3e5a80755c.webp)
 ![屏幕截图 2026-02-21 112601](/assets/ctf/0c19c197a922d6911488.webp)![屏幕截图 2026-02-21 112618](/assets/ctf/aff67a2a3da2cba6e40f.webp)
 利用代码段如下：
+
 ```c
     if ((unsigned long) (size)
 < (unsigned long) chunksize_nomask (bck->bk))

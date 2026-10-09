@@ -1,14 +1,17 @@
 ---
-layout: post
+layout: single
 title: "fastbin_dup"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
 description: "记录 glibc 2.35 中 fastbin_dup 的源码分析与调试过程。"
 source_folder: "PWN/Heap Exploitation/how2heap Debugging/2.35/fastbin_dup"
 lang: zh-CN
+excerpt: "记录 glibc 2.35 中 fastbin_dup 的源码分析与调试过程。"
 ---
 {% raw %}
+
 # 源码分析
+
 ```
 #include <stdio.h>
 #include <stdlib.h>
@@ -71,10 +74,13 @@ int main()
 
 }
 ```
+
 这是第一篇源码分析,所以会从头开始分析,包括但不限于各种宏定义和结构体定义.
+
 ## malloc填满tcache
 
 既然要分析源码,那先把源码贴一下:
+
 ```
 void * __libc_malloc (size_t bytes)
 {
@@ -145,6 +151,7 @@ libc_hidden_def (__libc_malloc)
 首先为进行fastbin攻击,
 先把tcache填满,所以先来分析该部分的源码并进行调试.
 *（原笔记引用的 QQ20251225-174343 1 图片未包含在压缩包中。）*
+
 ```
 __libc_malloc (size_t bytes)
 {
@@ -156,8 +163,10 @@ __libc_malloc (size_t bytes)
   if (!__malloc_initialized)
     ptmalloc_init ();
 ```
+
 这里定义了一个arena指针和一个叫victim的空指针,之后是一个断言(不知道在检测什么=,=),之后是一个简单的malloc初始化判断,然后就进入了`ptmalloc_init(void)`函数(glibc-2.35/malloc/arena.c:315),以进行初始化.
 ![QQ20251225-115219](/assets/ctf/b8d2479c95fd80aeeec2.webp)
+
 ```
 /*ptmalloc_init ()*/
 
@@ -168,8 +177,10 @@ if (__malloc_initialized)
   tcache_key_initialize ();
 #endif
 ```
+
 一个arena的初始化判断.
 之后是tcache_key变量的初始化.
+
 ```
 static void
 tcache_key_initialize(void)
@@ -183,6 +194,7 @@ tcache_key_initialize(void)
   }
 }
 ```
+
 这里先向tcache_key取一个`_int64`大小的随机数(8bytes),再用`random_bits()`取一个随机数,具体区别直接问了ai,但也看不懂...
 	在 glibc 中，`random_bits` 代表了**从高质量熵源到用户可用数值之间的“精炼”过程**。它确保了随机数既能满足性能要求，又能最大限度地利用从内核获取的每一位熵。
 总之,这里给tcache_key变量取了一个8bytes随机数.
@@ -215,6 +227,7 @@ tcache_key_initialize(void)
   thread_arena = &main_arena;
   malloc_init_state (&main_arena);
 ```
+
 这里的第一个#if跳过了,第二个运行了,但if判断为0,所以没有进行赋值(不要在意它是用来干啥的,我也不知道=,=),之后设置当前线程arena为main_arena的地址,并用`malloc_init_state()`初始化main_arena,具体初始化内容如下:
 
 |**初始化对象**|**描述**|
@@ -255,6 +268,7 @@ malloc_init_state (mstate av)
 ```
 
 结束后,回到`ptmalloc_init ()`
+
 ```
 /*ptmalloc_init ()*/
 
@@ -307,6 +321,7 @@ malloc_init_state (mstate av)
 ### tcache初始化
 
 下面,我们回到`__libc_malloc (size_t bytes)`.
+
 ```
 /*__libc_malloc (size_t bytes)*/
 
@@ -333,6 +348,7 @@ malloc_init_state (mstate av)
   DIAG_POP_NEEDS_COMMENT;
 #endif
 ```
+
 这里先来解释一下非常常用的一个宏:
 `size_t`:`typedef __SIZE_TYPE__ size_t`,`__SIZE_TYPE__` 是 **编译器（GCC / Clang）内置的宏类型**,其大小与架构关系如下:
 
@@ -346,6 +362,7 @@ malloc_init_state (mstate av)
 定义了tbytes变量后,在if的条件中调用了`checked_request2size (bytes, &tbytes)`函数,同时设置了error.
 
 下面,进入`checked_request2size (bytes, &tbytes)`函数
+
 ```
 checked_request2size (size_t req, size_t *sz) __nonnull (1)
 {
@@ -375,28 +392,34 @@ checked_request2size (size_t req, size_t *sz) __nonnull (1)
 第一个if中的__glibc_unlikely()函数是为了节省运行资源,而对发生可能行小的分支进行一定处理,从而提高性能(具体怎么处理我也不知道喵).这个if对req(即request,需求大小)做了判断,若大于`PTRDIFF_MAX`则直接报错(这里`PTRDIFF_MAX`的大小很大很大,感兴趣可以去翻翻源码).下一个if的`mtag_enable`宏(标志是否启用内存标签)默认是false所以跳过.
 最后,向sz指针指向的变量(传入的tbytes)写入`2*size_t`bytes(一般是8bytes)对齐过的size大小.
 这里的request2size宏同样很重要,下面我们来具体分析一下:
+
 ```
 #define request2size(req)                                         \
   (((req) + SIZE_SZ + MALLOC_ALIGN_MASK < MINSIZE)  ?             \
    MINSIZE :                                                      \
    ((req) + SIZE_SZ + MALLOC_ALIGN_MASK) & ~MALLOC_ALIGN_MASK)
 ```
+
 这里用了一个三元运算符,判断`req+0x8+0xf`是否小于MINSIZE(0x10)小于则直接返回MINSIZE(0x20),大于则进行0x10bytes对齐处理.(具体原理自行搜索).
 
 下面.把得到的tbytes用如下宏转化成索引(同样,不解释具体实现).
 	e.g.`0x10->[0] , 0x20->[1]`
+
 ```
 /* When "x" is from chunksize().  */
 # define csize2tidx(x) (((x) - MINSIZE + MALLOC_ALIGNMENT - 1) \ MALLOC_ALIGNMENT)
 ```
 
 看下一个宏的定义:
+
 ```
 # define MAYBE_INIT_TCACHE() \
   if (__glibc_unlikely (tcache == NULL)) \
     tcache_init();
 ```
+
 一个简单的tcache初始化判断,还用了`__glibc_unlikely()`以减少资源消耗.下面,步入`tcache_init`函数,来看看tcache如何进行初始化.
+
 ```
 static void
 tcache_init(void)
@@ -436,6 +459,7 @@ tcache_init(void)
 ```
 
 下面先来看一下tcache的结构体
+
 ```
 typedef struct tcache_perthread_struct
 {
@@ -453,10 +477,13 @@ typedef struct tcache_entry
   uintptr_t key;
 } tcache_entry;
 ```
+
 先定义了uint16类型(无符号16bits整型)的64个元素的数组(`TCACHE_MAX_BINS`宏大小为64).之后是tcache_entry结构体的结构体指针,该结构体中先是一个next指针,用以构成链表,之后,是一个uintptr_t(`typedef unsigned __int64 uintptr_t`)类型变量用以堆tcache的double free攻击加以限制(key校验存在的情况下,想进行double free,需要泄露key,且能对key位置进行覆盖.),这个结构体大小为(`2*64+8*64=128+512=0x80+0x200`)0x280bytes,所以0x10对齐后,可以看到在堆底申请到了0x290大小的chunk.
 ![QQ20251226-165248](/assets/ctf/570f195ea7df39a79c7a.webp)
+
 #### `_int_malloc (mstate av, size_t bytes)`部分分析
 下面,步入` _int_malloc (ar_ptr, bytes)`看看如何进行chunk申请(这一部分非常重要,可以说是堆利用的重中之重,这里只分析在调用的部分,不做全部分析).
+
 ```
 static void *
 _int_malloc (mstate av, size_t bytes)
@@ -483,7 +510,9 @@ _int_malloc (mstate av, size_t bytes)
   size_t tcache_unsorted_count;     /* count of unsorted chunks processed */
 #endif
 ```
+
 定义一些变量,这些变量后面会经常用,不用全记住,但请先看一遍.
+
 ```
 /*_int_malloc (mstate av, size_t bytes)*/
   if (!checked_request2size (bytes, &nb))
@@ -492,6 +521,7 @@ _int_malloc (mstate av, size_t bytes)
       return NULL;
     }
 ```
+
 对size的对齐与报错处理.
 
 ```
@@ -506,6 +536,7 @@ _int_malloc (mstate av, size_t bytes)
       return p;
     }
 ```
+
 处理arena指针为空的情况:
 - 正常情况下：
     - 单线程 → `av = &main_arena`
@@ -517,6 +548,7 @@ _int_malloc (mstate av, size_t bytes)
         - arena 数量达到上限
         - 内部选择失败（极端情况）
 这里,不会进入,略过.
+
 ```
 /*_int_malloc (mstate av, size_t bytes)*/
 #define REMOVE_FB(fb, victim, pp)     \
@@ -532,6 +564,7 @@ _int_malloc (mstate av, size_t bytes)
   while ((pp = catomic_compare_and_exchange_val_acq (fb, pp, victim)) \
    != victim);          \
 ```
+
 宏定义,忽略.
 
 ```
@@ -540,7 +573,9 @@ _int_malloc (mstate av, size_t bytes)
     {
     ......
 ```
+
 步入`get_max_fast ()`
+
 ```
 get_max_fast (void)
 {
@@ -557,9 +592,11 @@ get_max_fast (void)
   return global_max_fast;  /*0x80*/
 }
 ```
+
 所以这一快if也是不会进入的,忽略,后面再做解释.
 
 下面,申请的部分,直接在源码里解释.
+
 ```
 /*_int_malloc (mstate av, size_t bytes)*/
 /*
@@ -650,10 +687,12 @@ get_max_fast (void)
         malloc_consolidate (av);
     }
 ```
+
 对上面的if判断,再做一下解释,可以看到ptmalloc结束以后,内存中arena的bins部分中的值,具体再理解一下bins的初始化.
 ![QQ20251227-152038](/assets/ctf/ad83c3ed3dc976c4870b.webp)
 
 由于判断smallbins为空,所以准备进入unsortedbin寻找,下面是准备中对tcache的处理.
+
 ```
 /*_int_malloc (mstate av, size_t bytes)*/
 #if USE_TCACHE
@@ -707,6 +746,7 @@ get_max_fast (void)
          when no chunks have been returned yet is faster than it might look.
        */
 ```
+
 以上是largebin的搜索过程,后续解释.
 
 ```
@@ -718,6 +758,7 @@ get_max_fast (void)
   map = av->binmap[block];
   bit = idx2bit (idx);
 ```
+
 这段代码通常出现在一个循环中，用于寻找比请求尺寸更大的空闲内存块：
 1. **`++idx;`**
     - **含义**：将索引移动到下一个 Bin。
@@ -740,6 +781,7 @@ get_max_fast (void)
     - **背景**：通过位运算（如 `map & bit`），可以瞬间判断该特定的 Bin 是否包含空闲 chunk。
 通过调试,看一下几个重要变量:
 ![QQ20251227-173503](/assets/ctf/d0ad336d5ac0235048e5.webp)
+
 ```
 /*_int_malloc (mstate av, size_t bytes)*/
  for (;; )
@@ -790,8 +832,10 @@ use_top:
       if (__glibc_unlikely (size > av->system_mem))
         malloc_printerr ("malloc(): corrupted top size");
 ```
+
 这里由于这里从未申请任何chunk,所以,堆区没初始化,所以根本没有top chunk.
 ![QQ20251227-180244](/assets/ctf/eaa6bea56de8c483405c.webp)
+
 ```
 /*_int_malloc (mstate av, size_t bytes)*/
       if ((unsigned long) (size) >= (unsigned long) (nb + MINSIZE))
@@ -836,6 +880,7 @@ use_top:
     - 如果 `sbrk` 失败，或者是在非主分配区，尝试 `mmap`。
 4. **前向合并**：如果新申请的内存与旧的 Top Chunk 物理上连续，`sysmalloc` 会将它们合并成一个新的、更大的 Top Chunk。(这里就会在这创建top chunk)
 5. **容错处理**：如果系统内存彻底耗尽（`sbrk` 和 `mmap` 都失败），`sysmalloc` 返回 `NULL`，最终导致 `malloc` 返回 `NULL`。
+
 ```
       else
         {
@@ -848,6 +893,7 @@ use_top:
         }
     }
 ```
+
 到这,`_int_malloc`就执行完了.
 
 ---
@@ -863,7 +909,9 @@ use_top:
       victim = _int_malloc (ar_ptr, bytes);
     }
 ```
+
 下面步入`arena_get_retry (ar_ptr, bytes)`.
+
 ```
 /* If we don't have the main arena, then maybe the failure is due to running
    out of mmapped areas, so we can try allocating on the main arena.
@@ -891,8 +939,10 @@ arena_get_retry (mstate ar_ptr, size_t bytes)
   return ar_ptr;
 }
 ```
+
 由于arena_get2的操作只是为了处理多线程arena共用问题,在此不步入和解释.
 下面回到`tcache_init(void)`
+
 ```
 /*tcache_init(void)*/
  if (ar_ptr != NULL)
@@ -910,10 +960,12 @@ arena_get_retry (mstate ar_ptr, size_t bytes)
       tcache处内存初始化为\x00
     }
 ```
+
 至此,tcache初始化结束,也完成了关于堆的所有初始化.
 
 ### 申请chunk
 接下来,回到`glibc-2.35/malloc/malloc.c:3309`
+
 ```
 /*__libc_malloc (size_t bytes)*/
   DIAG_PUSH_NEEDS_COMMENT;   /*是用来“控制编译器警告”的宏,与堆分配机制无关*/
@@ -926,6 +978,7 @@ arena_get_retry (mstate ar_ptr, size_t bytes)
     }
   DIAG_POP_NEEDS_COMMENT;
 ```
+
 因为这里是第一次malloc,所以不会进入这个if,留着下次解释.
 	*这里的进入条件是:申请的索引大小合适(即申请的大小在tcache范围内),tcache存在,tcache中有剩余chunk.
 
@@ -942,7 +995,9 @@ arena_get_retry (mstate ar_ptr, size_t bytes)
       /*结束函数,返回victim(申请到的chunk)的地址*/
     }
 ```
+
 一般内存标签都是不开启的,所以这里不会进入下面`tag_new_usable (void *ptr)`的主逻辑(if中的内容),直接通过`_int_malloc()`函数申请chunk后,直接返回victim(申请chunk的地址)值.
+
 ```
 /*__libc_malloc (size_t bytes)*/
 static __always_inline void *
@@ -958,6 +1013,7 @@ tag_new_usable (void *ptr)
 ```
 
 下面是处理多线程情况(多个arena,需要lock arena)的情况下,才会调用的部分,所以这里不具体解释
+
 ```
 /*__libc_malloc (size_t bytes)*/
  arena_get (ar_ptr, bytes);
@@ -986,6 +1042,7 @@ libc_hidden_def (__libc_malloc)
 
 
 下面再次步入`_int_malloc (&main_arena, bytes)`,之前解释过的部分不再解释,直接看fastbin的运行逻辑.
+
 ```
 `_int_malloc (&main_arena, bytes)`
   if ((unsigned long) (nb) <= (unsigned long) (get_max_fast ()))
@@ -1002,6 +1059,7 @@ libc_hidden_def (__libc_malloc)
 ```
 
 下面的逻辑与上面差不多,会跳过smallbins,largebins和unsortedbins的检测,唯一不同的是下面的判断程序:
+
 ```
 _int_malloc (&main_arena, bytes)
 if (!in_smallbin_range (nb))
@@ -1016,7 +1074,9 @@ if (!in_smallbin_range (nb))
             ......
             }
 ```
+
 这里由于nb不在smallbins中,会进入第一个if,但是largebins为空,所以跳过下一个大的if,进入binmap的查找逻辑后,直接跳到`use_top:`部分,从top chunk切.
+
 ```
 if ((unsigned long) (size) >= (unsigned long) (nb + MINSIZE))
         {
@@ -1037,6 +1097,7 @@ if ((unsigned long) (size) >= (unsigned long) (nb + MINSIZE))
 之后的7次malloc与以上运行逻辑完全一样,不再解释.
 
 ---
+
 ### 七次free
 
 ```
@@ -1064,6 +1125,7 @@ __libc_free (void *mem)
     ......
     }
 ```
+
 下面是对errno全局变量的解释:
 `errno` 是一个定义在 `<errno.h>` 头文件中的**全局变量**（在多线程环境下是线程局部变量）。
 当一个系统调用（比如打开文件 `fopen`）或库函数出错时，它会把一个特定的**错误代码**存入 `errno`。
@@ -1090,6 +1152,7 @@ libc_hidden_def (__libc_free)
 ```
 
 下面进入_int_free函数分析:
+
 ```
 static void
 _int_free (mstate av, mchunkptr p, int have_lock)
@@ -1126,7 +1189,9 @@ _int_free (mstate av, mchunkptr p, int have_lock)
 /*检测操作,如果开启MALLOC_DEBUG则不进行检测*/
   check_inuse_chunk(av, p);
 ```
+
 这里进入该宏指向的函数
+
 ```
 static void
 do_check_inuse_chunk (mstate av, mchunkptr p)
@@ -1170,9 +1235,11 @@ do_check_inuse_chunk (mstate av, mchunkptr p)
     /*这个宏有点麻烦,暂时不再深入*/
 }
 ```
+
 总结一下:这个宏主要检测nextchunk的p标志位,如果pre chunk是被free的,会检测其size,而对top chunk的检测则不太重要.
 
 下面回到`_int_free()`函数
+
 ```
 /*_int_free (mstate av, mchunkptr p, int have_lock)*/
 #if USE_TCACHE
@@ -1222,7 +1289,9 @@ do_check_inuse_chunk (mstate av, mchunkptr p)
   }
 #endif
 ```
+
 下面进入最后的`tcache_put`函数.
+
 ```
 static __always_inline void
 tcache_put (mchunkptr chunk, size_t tc_idx)
@@ -1242,7 +1311,9 @@ tcache_put (mchunkptr chunk, size_t tc_idx)
   ++(tcache->counts[tc_idx]);
 }
 ```
+
 下面看一下用于safe linking,保护next指针的两个宏.
+
 ```
 #define PROTECT_PTR(pos, ptr) \
   ((__typeof (ptr)) ((((size_t) pos) >> 12) ^ ((size_t) ptr)))
@@ -1250,12 +1321,14 @@ tcache_put (mchunkptr chunk, size_t tc_idx)
 
 #define REVEAL_PTR(ptr)  PROTECT_PTR (&ptr, ptr)
 ```
+
 之后的几次free与上面流程一致,不再讨论.
  这里有趣的是,第一个进入tcache的next指针为0,但物理地址中由于safe linking保护却非0
 ![QQ20260105-103540](/assets/ctf/c152f45078f66f8c5345.webp)
 ![QQ20260105-103525](/assets/ctf/625b6b8c56aee47c976a.webp)
 
 ---
+
 ## 攻击详解
 
 到这里,相信你已经对堆的分配机制有了更深的理解,下面,不会在一步步解释程序运行逻辑,只会对攻击所利用的源码段做详细解释.
@@ -1301,8 +1374,10 @@ tcache_put (mchunkptr chunk, size_t tc_idx)
 
 }
 ```
+
 这里样例大量使用calloc,其与malloc区别是它会给申请的chunk的user data的部分重要数据全用\x00覆盖.
 首先申请三个chunk后,以a,b,a的顺序free了三个chunk,下面看一下源码对free进fastbin的检查:
+
 ```
     atomic_store_relaxed (&av->have_fastchunks, true);
     unsigned int idx = fastbin_index(size);
@@ -1321,6 +1396,7 @@ tcache_put (mchunkptr chunk, size_t tc_idx)
 	*fb = p;
       }
 ```
+
 可以看到,这里只会保存两个之前被free的chunk,分别是old和old2,但这里只对old1做了检查,就开始维护fastbin的链表了.所以,只要按a,b,a顺序,就能进行double free,之后任意地址申请.
 
 {% endraw %}

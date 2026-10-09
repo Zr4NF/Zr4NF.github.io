@@ -1,13 +1,15 @@
 ---
-layout: post
+layout: single
 title: "ezFinger"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "Write-up"]
 description: "记录 2026 年 polar 比赛中 ezFinger 题目的分析与解题过程。"
 source_folder: "Write-ups/2026/polar/re"
 lang: zh-CN
+excerpt: "记录 2026 年 polar 比赛中 ezFinger 题目的分析与解题过程。"
 ---
 {% raw %}
+
 # ezFinger WP
 
 先看 `sub_8003498`。它直接读 `0x40023808/0x40023804`，也就是 STM32F4 的 `RCC->CFGR` 和 `RCC->PLLCFGR`。函数先判断系统时钟源是 `HSI/HSE/PLL`，如果是 HSI 返回 `16000000`，如果是 HSE 返回 `8000000`，如果是 PLL 就按 `PLLM/PLLN/PLLP` 的配置去计算最终的 `SYSCLK`。这正是 HAL 里 `HAL_RCC_GetSysClockFreq` 的典型逻辑，所以 `sub_8003498 = HAL_RCC_GetSysClockFreq`。

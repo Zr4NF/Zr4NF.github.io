@@ -1,14 +1,17 @@
 ---
-layout: post
+layout: single
 title: "Large Manager"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "Write-up"]
 description: "记录 2026 年 sh 比赛中 Large Manager 题目的分析与解题过程。"
 source_folder: "Write-ups/2026/sh/Large Manager"
 lang: zh-CN
+excerpt: "记录 2026 年 sh 比赛中 Large Manager 题目的分析与解题过程。"
 ---
 {% raw %}
+
 # 信息
+
 ```
     Arch:       amd64-64-little
     RELRO:      Full RELRO
@@ -87,4 +90,5 @@ largebin at + apple2
     dbg()
     exit()
 ```
+
 {% endraw %}

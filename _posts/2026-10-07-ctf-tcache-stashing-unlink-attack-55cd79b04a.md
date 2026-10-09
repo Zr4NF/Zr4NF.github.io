@@ -1,14 +1,17 @@
 ---
-layout: post
+layout: single
 title: "tcache_stashing_unlink_attack"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
 description: "记录 glibc 2.35 中 tcache_stashing_unlink_attack 的源码分析与调试过程。"
 source_folder: "PWN/Heap Exploitation/how2heap Debugging/2.35/tcache_stashing_unlink_attack"
 lang: zh-CN
+excerpt: "记录 glibc 2.35 中 tcache_stashing_unlink_attack 的源码分析与调试过程。"
 ---
 {% raw %}
+
 # POC
+
 ```c
 #include <stdio.h>
 #include <stdlib.h>
@@ -92,28 +95,36 @@ int main(){
 }
 
 ```
+
 能够覆盖 victim->bk 指针时，可以使用此技术。此外，至少需要使用 calloc 分配一次数据块。最后，我们需要一个可写地址来绕过 glibc 中的检查。
 
 这项技术允许我们向任何想要的位置写入 libc 地址，并在任何需要的地方创建fake chunk。
 
 # 调试过程
+
 ## 1.在（victim+0x18）写一个任意可写地址
+
 ```
 	stack_var[3] = (unsigned long)(&stack_var[2]);
 ```
+
 *原因在 4.calloc触发攻击中*
 改前全\x00
 改后：起始地址为0x7fffffffd940。
 ![屏幕截图 2026-02-20 191347](/assets/ctf/244b09ac7071259fd3c4.webp)
 ps：处tcache链表记录chunk的user date地址，其他全记录chunk地址（带head）。
+
 ## 2.布置堆区与bins
+
 ```
     //now we malloc 9 chunks
     for(int i = 0;i < 9;i++){
         chunk_lis[i] = (unsigned long*)malloc(0x90);
     }
 ```
+
 ![屏幕截图 2026-02-20 190535](/assets/ctf/89d36b2b7f5c94b7c140.webp)
+
 ```
     //put 7 chunks into tcache
     for(int i = 3;i < 9;i++){
@@ -122,6 +133,7 @@ ps：处tcache链表记录chunk的user date地址，其他全记录chunk地址�
     //last tcache bin
     free(chunk_lis[1]);
 ```
+
 ![屏幕截图 2026-02-20 190720](/assets/ctf/840e24e3b5542ed9d3b5.webp)
 ![屏幕截图 2026-02-20 190734](/assets/ctf/2e26ec06869bb30c907f.webp)
 
@@ -130,6 +142,7 @@ ps：处tcache链表记录chunk的user date地址，其他全记录chunk地址�
     free(chunk_lis[0]);
     free(chunk_lis[2]);
 ```
+
 ![屏幕截图 2026-02-20 190814](/assets/ctf/c632367185fcfd479ebf.webp)
 ![屏幕截图 2026-02-20 190845](/assets/ctf/8ba05090f3748b8d55af.webp)
 
@@ -137,6 +150,7 @@ ps：处tcache链表记录chunk的user date地址，其他全记录chunk地址�
 	//触发整理机制，大小太小会直接被unsorted切。
     malloc(0xa0);// size > 0x90
 ```
+
 ![屏幕截图 2026-02-20 190915](/assets/ctf/7083320f953f1873119a.webp)
 
 ```
@@ -144,26 +158,34 @@ ps：处tcache链表记录chunk的user date地址，其他全记录chunk地址�
     malloc(0x90);
     malloc(0x90);
 ```
+
 ![屏幕截图 2026-02-20 190930](/assets/ctf/6f3c7518b5728560bef5.webp)
 ![屏幕截图 2026-02-20 190947](/assets/ctf/97d49ccdb996a1ad4fb7.webp)
+
 ## 3.VULNERABILITY
+
 ```
     //change victim->bck
     /*VULNERABILITY*/
     chunk_lis[2][1] = (unsigned long)stack_var;
     /*VULNERABILITY*/
 ```
+
 改前：smallbins的entry，放glibc地址。
 ![屏幕截图 2026-02-20 192833](/assets/ctf/e04ca3b47b20c6b7bc22.webp)
 改后：覆写victim地址（写入chunk head地址）。
 ![屏幕截图 2026-02-20 192803](/assets/ctf/f789c5edcfac17fcd3fd.webp)
+
 ## 4.calloc触发攻击
+
 ```
     //trigger the attack
     calloc(1,0x90);
 ```
+
 *以下victim为目标写入地址。*
 第一次：将剩余的一个chunk a放入tcache。（b已被申请走）
+
 ```
 	      while (tcache->counts[tc_idx] < mp_.tcache_count
 		     && (tc_victim = last (bin)) != bin)
@@ -182,7 +204,9 @@ ps：处tcache链表记录chunk的user date地址，其他全记录chunk地址�
 		}
 	    }
 ```
+
 第二次：将victim放入tcache。
+
 ```
 	      while (tcache->counts[tc_idx] < mp_.tcache_count
 		     && (tc_victim = last (bin)) != bin)

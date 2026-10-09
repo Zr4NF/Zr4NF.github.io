@@ -1,14 +1,17 @@
 ---
-layout: post
+layout: single
 title: "fastbin_dup_into_stack"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
 description: "记录 glibc 2.35 中 fastbin_dup_into_stack 的源码分析与调试过程。"
 source_folder: "PWN/Heap Exploitation/how2heap Debugging/2.35/fastbin_dup_into_stack"
 lang: zh-CN
+excerpt: "记录 glibc 2.35 中 fastbin_dup_into_stack 的源码分析与调试过程。"
 ---
 {% raw %}
+
 # 源码
+
 ```
 #include <stdio.h>
 #include <stdlib.h>
@@ -95,12 +98,16 @@ int main()
     assert((unsigned long)p == (unsigned long)stack_var + 0x10);
 }
 ```
+
 这个利用，是对fastbin_dup（double free）的利用演示，这个样例里，会用double free修改一个location，这里为stack上一个叫stack_var的数组，实际做题中其实很难泄露stack地址，所以很少覆盖这里。
 
 由于这部分并不复杂，也没有需要调试的地方，只对源码和攻击流程做个总结。
+
 # 关于fastbin的检查机制
+
 ## malloc
 下面会总结关于fastbin的几个检查，及部分绕过方式（很多都是旧技术，并不实用）。
+
 ```
 static void *
 _int_malloc (mstate av, size_t bytes)
@@ -140,10 +147,13 @@ _int_malloc (mstate av, size_t bytes)
 	}
 }
 ```
+
 malloc要绕过的检查为以下两个：
 1. 对fd指针指向地址的对齐检测。
 2. 对chunk结构的size处大小与索引大小的对比检测。
+
 ## free
+
 ```
 static void
 _int_free (mstate av, mchunkptr p, int have_lock)
@@ -232,6 +242,7 @@ _int_free (mstate av, mchunkptr p, int have_lock)
 	......
       }
 ```
+
 free部分有如下检测：
 1. `0x10<size<申请的总大小·
 2. 对doubel free的检测，这里只检测old的指向与当前是否相同。

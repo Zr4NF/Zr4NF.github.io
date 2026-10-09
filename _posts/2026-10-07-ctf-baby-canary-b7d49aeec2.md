@@ -1,14 +1,17 @@
 ---
-layout: post
+layout: single
 title: "baby_canary"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "Write-up"]
 description: "记录 2026 年 sh 比赛中 baby_canary 题目的分析与解题过程。"
 source_folder: "Write-ups/2026/sh/baby_canary"
 lang: zh-CN
+excerpt: "记录 2026 年 sh 比赛中 baby_canary 题目的分析与解题过程。"
 ---
 {% raw %}
+
 # 信息
+
 ```
     RELRO:      Partial RELRO
     Stack:      Canary found
@@ -32,6 +35,7 @@ line  CODE  JT   JF      K
 ```
 
 # 反编译
+
 ## `gift()`
 
 ```
@@ -96,18 +100,22 @@ unsigned __int64 vuln()
   return v2 - __readfsqword(0x28u);
 }
 ```
+
 vnlu函数中给了0x18 bytes的溢出，非常有限，考虑栈迁移。
+
 # 思路
 
 整合一下条件，一次任意地址写，一次限制较大的溢出，且无canary。
 
 所以需要通过一次写去，绕过canary的检测。回想一下，canary的检测与crash形式：
+
 ```
 mov     rax, [rbp+var_8]
 sub     rax, fs:28h
 jz      short locret_401549
 call    ___stack_chk_fail
 ```
+
 通过rbp去寻找canary，与fs段寄存器保存的比较，不同则调用`___stack_chk_fail`函数，进行crash。
 
 所以可以直接用任意地址写覆盖got表中的`___stack_chk_fail`函数，为ret地址（call会压返回地址，这里压栈的返回地址就是jz跳转的地址，其内容为`leave;ret`），绕过canary的检测。

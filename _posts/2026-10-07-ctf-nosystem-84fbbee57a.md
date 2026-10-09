@@ -1,14 +1,17 @@
 ---
-layout: post
+layout: single
 title: "nosystem"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "Write-up"]
 description: "记录 2026 年 furry 比赛中 nosystem 题目的分析与解题过程。"
 source_folder: "Write-ups/2026/furry/nosystem"
 lang: zh-CN
+excerpt: "记录 2026 年 furry 比赛中 nosystem 题目的分析与解题过程。"
 ---
 {% raw %}
+
 # ELF
+
 ```
 int __fastcall main(int argc, const char **argv, const char **envp)
 {
@@ -36,11 +39,13 @@ int __fastcall main(int argc, const char **argv, const char **envp)
     PIE:        No PIE (0x400000)
     Stripped:   No
 ```
+
 # 思路
 啥保护都没开，一个脸上的栈溢出，原elf直接给了一个csu。
 构造rop时发现没有‘sh’，通过csu写一个，之后构造rop链就行。
 
 exp：
+
 ```python
 from pwncli import *
 import sys

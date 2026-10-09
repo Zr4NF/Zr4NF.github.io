@@ -1,14 +1,17 @@
 ---
-layout: post
+layout: single
 title: "mmap_overlapping_chunks"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
 description: "记录 glibc 2.35 中 mmap_overlapping_chunks 的源码分析与调试过程。"
 source_folder: "PWN/Heap Exploitation/how2heap Debugging/2.35/mmap_overlapping_chunks"
 lang: zh-CN
+excerpt: "记录 glibc 2.35 中 mmap_overlapping_chunks 的源码分析与调试过程。"
 ---
 {% raw %}
+
 # PoC
+
 ```
 #include <stdlib.h>
 #include <stdio.h>
@@ -155,49 +158,72 @@ int main()
 	_exit(0); // exit early just in case we corrupted some libraries
 }
 ```
+
 这个PoC与overlapping_chunks思路相同，通过free被改size的chunk，获取overlapping chunk的指针。
 但不同的是，这里通过mmap去申请chunk（一般第2、3个mmapped chunk才再glibc之前，且相连），free（即munmmap）之后，内核会将相对段的内存设为无权限（rwx都不行）。
 而且由于修改了mmap的size位，不能通过main函数结束，调libc_start_main函数正常退出程序。
 
 # 调试过程
+
 ## 1.
+
 ```
 long long* top_ptr = malloc(0x100000);
 ```
+
 ![屏幕截图 2026-02-15 190317](/assets/ctf/4f454849b5f8f87e95ff.webp)
+
 ## 2.
+
 ```
 long long* mmap_chunk_2 = malloc(0x100000);
 ```
+
 ![屏幕截图 2026-02-15 190344](/assets/ctf/47f949811a023b46926f.webp)
+
 ## 3.
+
 ```
 long long* mmap_chunk_3 = malloc(0x100000);
 ```
+
 ![屏幕截图 2026-02-15 190452](/assets/ctf/eba6dab69b67ebbdbc1a.webp)
+
 ## 4.
+
 ```
 mmap_chunk_3[-1] = (0xFFFFFFFFFD & mmap_chunk_3[-1]) + (0xFFFFFFFFFD & mmap_chunk_2[-1]) | 2;
 ```
+
 ![屏幕截图 2026-02-15 190615](/assets/ctf/449c670ff482a7b1bace.webp)
 ![屏幕截图 2026-02-15 190945](/assets/ctf/01fef9150ce4edca5389.webp)
+
 ## 5.
+
 ```
 free(mmap_chunk_3);
 ```
+
 ![屏幕截图 2026-02-15 190634](/assets/ctf/aff678e665848882d047.webp)
+
 ## 6.
+
 ```
 long long* overlapping_chunk = malloc(0x300000);
 ```
+
 ![屏幕截图 2026-02-15 190653](/assets/ctf/ebee9e2f687c432d1269.webp)
+
 # 攻击流程
 与overlapping_chunks非常相似。
+
 ```
 申请两个相连chunk   ->    改prev_chunk的size   ->   free(prev_chunk)   ->   malloc(超过两个chunk的size)
 ```
+
 不同的是，free（munmmap）之后，对应内存段被内核重设了权限；malloc的size需超过两个chunk之和。
 原因PoC内有说明：
+
 ```
 Allocate a very large chunk with malloc. This needs to be larger than 
 the previously freed chunk because the mmapthreshold has increased to 0x202000.
@@ -208,4 +234,5 @@ Would crash, if on the following:
 mmap_chunk_2[0] = 0xdeadbeef;
 This is because the memory would not be allocated to the current program.
 ```
+
 {% endraw %}

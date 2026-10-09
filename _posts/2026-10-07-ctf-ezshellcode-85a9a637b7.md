@@ -1,15 +1,17 @@
 ---
-layout: post
+layout: single
 title: "ezshellcode"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "Write-up"]
 description: "记录 2026 年 ctf+ 比赛中 ezshellcode 题目的分析与解题过程。"
 source_folder: "Write-ups/2026/ctf+"
 lang: zh-CN
+excerpt: "记录 2026 年 ctf+ 比赛中 ezshellcode 题目的分析与解题过程。"
 ---
 {% raw %}
 
 ## 信息
+
 ```
 	arch:       amd64-64-little
     RELRO:      No RELRO
@@ -67,6 +69,7 @@ mprotect(0x400000, 0x1000, PROT_READ | PROT_WRITE | PROT_EXEC);
 ```
 
 ## step3
+
 ```
 LOAD:0000000000400006                 db 1                    ; File version
 LOAD:0000000000400007                 db 0                    ; OS/ABI: UNIX System V ABI
@@ -92,6 +95,7 @@ add rsp,0x600
 把栈放到已经被 `mprotect` 成 RWX 的页内。
 
 # exp
+
 ```python
 def pwn():
     start = 0x4000B0
@@ -126,4 +130,5 @@ def pwn():
     s(payload)
     ia()
 ```
+
 {% endraw %}

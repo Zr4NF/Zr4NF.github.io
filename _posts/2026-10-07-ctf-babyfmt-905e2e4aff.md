@@ -1,14 +1,17 @@
 ---
-layout: post
+layout: single
 title: "babyfmt"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "Write-up"]
 description: "记录 2026 年 sh 比赛中 babyfmt 题目的分析与解题过程。"
 source_folder: "Write-ups/2026/sh/babyfmt"
 lang: zh-CN
+excerpt: "记录 2026 年 sh 比赛中 babyfmt 题目的分析与解题过程。"
 ---
 {% raw %}
+
 # ELF
+
 ```
 int __fastcall __noreturn main(int argc, const char **argv, const char **envp)
 {
@@ -38,8 +41,10 @@ int __fastcall __noreturn main(int argc, const char **argv, const char **envp)
     IBT:        Enabled
     Stripped:   No
 ```
+
 # 思路
 整个程序很简单，只有一个栈溢出，和一个fmt。
+
 ```c
 -0000000000000110 // Use data definition commands to manipulate stack variables and arguments.
 -0000000000000110 // Frame size: 110; Saved regs: 8; Purge: 0
@@ -51,8 +56,10 @@ int __fastcall __noreturn main(int argc, const char **argv, const char **envp)
 +0000000000000010
 +0000000000000010 // end of stack variables
 ```
+
 栈溢出只能泄露cannary，这里我直接用第一次fmt泄露了某个栈地址，和libc地址。之后爆破栈偏移，找到printf的返回地址用one_gadget覆盖。
 exp：
+
 ```python
 from pwncli import *
 import sys
@@ -165,7 +172,9 @@ sla("Input your text: ", b"%p" * 100)
 io.interactive()
 
 ```
+
 # 另一个师傅的思路
+
 ```python
 from pwn import *
 
@@ -237,8 +246,10 @@ io.interactive()
 版权声明：本文为CSDN博主「今天我没有心情」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
 原文链接：https://blog.csdn.net/2503_94547653/article/details/157877511
 ```
+
 这个师傅通过fmt泄露栈地址，爆破返回地址。但最后fmt覆盖时有错误，printf会打印’text：‘，需要填充payload至正确的偏移后，再用`numbwritten=`参数。
 以下为修改后的：
+
 ```python
 from pwn import *
 
@@ -318,7 +329,9 @@ io.sendline(b"aaa" + payload)
 
 io.interactive()
 ```
+
 受这个师傅启发，我又尝试了另一种爆破思路：
+
 ```python
 from pwn import *
 
@@ -398,5 +411,6 @@ io.sendline(b"aaa" + payload)
 
 io.interactive()
 ```
+
 这里通过爆破buf地址，用偏移算返回地址。
 {% endraw %}

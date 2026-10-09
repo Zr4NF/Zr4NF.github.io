@@ -1,14 +1,17 @@
 ---
-layout: post
+layout: single
 title: "fastbin_reverse_into_tcache"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
 description: "记录 glibc 2.35 中 fastbin_reverse_into_tcache 的源码分析与调试过程。"
 source_folder: "PWN/Heap Exploitation/how2heap Debugging/2.35/fastbin_reverse_into_tcache"
 lang: zh-CN
+excerpt: "记录 glibc 2.35 中 fastbin_reverse_into_tcache 的源码分析与调试过程。"
 ---
 {% raw %}
+
 # PoC
+
 ```
 #include <stdio.h>
 #include <stdlib.h>
@@ -115,9 +118,13 @@ int main(){
 	return 0;
 }
 ```
+
 该攻击能够通过修改一个fastbin的fd指针，达成向任意地址写任意值/0/堆地址（有ptr保护）/tcache的key。
+
 # 调试分析
+
 ## 1.填满tcache
+
 ```
 	for (i = 0; i < 14; i++) {
 		ptrs[i] = malloc(allocsize);
@@ -125,39 +132,56 @@ int main(){
 
 	for (i = 0; i < 7; i++) free(ptrs[i]);
 ```
+
 ![屏幕截图 2026-02-18 155859](/assets/ctf/28a5631aeab33646771a.webp)
+
 ## 2.free目标chunk
+
 ```
 	char* victim = ptrs[7];
 	free(victim);
 ```
+
 ![屏幕截图 2026-02-18 155922](/assets/ctf/d31933c86b25b0d2b79f.webp)
+
 ## 3.free共7个fastbin chunk
+
 ```
 	for (i = 8; i < 14; i++) free(ptrs[i]);
 ```
+
 ![屏幕截图 2026-02-18 155948](/assets/ctf/28ddc3402faf5bbbf71b.webp)
+
 ## 4.修改目标chunk的fd指针(VULNERABILITY)
+
 ```
 	*(size_t**)victim = (size_t*)((long)&stack_var[0] ^ ((long)victim >> 12));
 ```
+
 ![屏幕截图 2026-02-18 160233](/assets/ctf/d216312b9ab268ba7412.webp)
 fastbin的fd指针维护的是chunk头的地址组成的链表，所以实际写next指针和key的地址为`victim+0x10`与`victim+0x18`，后续清空key，与再次malloc进行覆写的起始地址也是这里。
+
 ## 5.清空tcache
+
 ```
 	for (i = 0; i < 7; i++) ptrs[i] = malloc(allocsize);
 ```
+
 ![屏幕截图 2026-02-18 160543](/assets/ctf/99331e16158644d86048.webp)
+
 ## 6.malloc进行fastbin维护
+
 ```
 	malloc(allocsize);
 ```
+
 这里上下对比，可以看到上下链表维护的指针差0x10。
 ![屏幕截图 2026-02-18 160613](/assets/ctf/ce4d0236d69001862461.webp)
 ![屏幕截图 2026-02-18 160623](/assets/ctf/25ec21c01b1d153f256b.webp)
 int_malloc会把fastbin中对应大小的chunk尽可能地放入对应的tcache（都按照正常使用链表的顺序，头插头取），函数中会覆盖glibc中fastbin指针数组后，调用tcache_put将该chunk放入tcache。
 
 注意原文中这句：
+
 ```
 		 "Earlier we said that the attack will also work if we free fewer than 6\n"
 		   "extra pointers to the fastbin, but only if the value on the stack is zero.\n"
@@ -165,21 +189,26 @@ int_malloc会把fastbin中对应大小的chunk尽可能地放入对应的tcache�
 		   "linked list and it will trigger a crash if it isn't a valid pointer or null.\n"
 		   "\n"
 ```
+
 由于该循环会执行到tcache满，或fastbin链表结束（fd指针为0），所以会将victim的fd指针偏移处当作下一个chunk，所以如果是其他值就可能在几次或一次整理后crash。
 
 理论上如果能在相应位置布置有保护的chunk指针也能绕过，但很难qwq。
 
 还有一个可以利用的思路是，修改某个chunk的fd指针为一个未free chunk，利用这段代码将该chunk放进tcache，再进一步利用。
+
 ## 7.再次malloc申请目标地址
+
 ```
 	char *q = malloc(allocsize);
 ```
+
 ![屏幕截图 2026-02-18 160700](/assets/ctf/f82d2941a127b139c2f1.webp)
 ![屏幕截图 2026-02-18 162012](/assets/ctf/6e46f3c9d2aa31de034f.webp)
 
 # int_malloc的fastbin部分源码分析
 
 常规的链表维护与chunk分配不再看，主要看`#if USE_TCACHE`部分对tcache与fastbin的维护。
+
 ```
   if ((unsigned long) (nb) <= (unsigned long) (get_max_fast ()))
     {

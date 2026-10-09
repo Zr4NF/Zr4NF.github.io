@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: single
 title: AIC–NEX Attack Analysis
 date: 2026-10-07 21:02:00 +0800
 permalink: /posts/aic-nex-attack-analysis/
@@ -7,6 +7,7 @@ tags: [Blockchain, Audit, Bytecode Analysis]
 description: "结合 NEX 转账逻辑审计与攻击合约字节码逆向，分析漏洞根因和完整调用流程，并附资金流与储备变化的 HTML 报告。"
 source_folder: Blockchain/AIC-NEX
 lang: zh-CN
+excerpt: "结合 NEX 转账逻辑审计与攻击合约字节码逆向，分析漏洞根因和完整调用流程，并附资金流与储备变化的 HTML 报告。"
 ---
 {% raw %}
 本文结合 NEX 转账逻辑审计与攻击合约字节码逆向，整理 AIC / NEX 事件的漏洞根因和完整调用流程。
@@ -599,4 +600,5 @@ Child.attack() 续
 
 0x0fff RETURN
 ```
+
 {% endraw %}

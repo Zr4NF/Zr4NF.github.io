@@ -1,14 +1,17 @@
 ---
-layout: post
+layout: single
 title: "tcache_poisoning"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
 description: "记录 glibc 2.35 中 tcache_poisoning 的源码分析与调试过程。"
 source_folder: "PWN/Heap Exploitation/how2heap Debugging/2.35/tcache_poisoning"
 lang: zh-CN
+excerpt: "记录 glibc 2.35 中 tcache_poisoning 的源码分析与调试过程。"
 ---
 {% raw %}
+
 # PoC
+
 ```
 #include <stdio.h>
 #include <stdlib.h>
@@ -74,7 +77,9 @@ int main()
 	return 0;
 }
 ```
+
 该利用非常简单，通过两次malloc增加tcache的计数，再通过泄露的堆地址覆写next指针，即可进行任意地址申请。
+
 ```
 intptr_t *a = malloc(128);
 intptr_t *b = malloc(128);
@@ -89,4 +94,5 @@ intptr_t *c = malloc(128);
 
 assert((long)target == (long)c);
 ```
+
 {% endraw %}

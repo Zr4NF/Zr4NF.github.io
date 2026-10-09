@@ -1,14 +1,16 @@
 ---
-layout: post
+layout: single
 title: "fastbin_dup_consolidate"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
 description: "记录 glibc 2.35 中 fastbin_dup_consolidate 的源码分析与调试过程。"
 source_folder: "PWN/Heap Exploitation/how2heap Debugging/2.35/fastbin_dup_consolidate"
 lang: zh-CN
+excerpt: "记录 glibc 2.35 中 fastbin_dup_consolidate 的源码分析与调试过程。"
 ---
 {% raw %}
 .# 源码:
+
 ```
 #include <stdio.h>
 #include <stdlib.h>
@@ -71,8 +73,10 @@ int main() {
     return 0;
 }
 ```
+
 这个样例,通过malloc一个largebin范围的chunk去触发`malloc_consolidate`函数,向后合并,之后uaf进行double free,再次malloc largebin chunk就能获得两个可控的,指向同一个chunk(在tcache中)的地址索引,实现chunk的重复分配.（这里关键是获得了两个指向更大overlapping_chunk的指针）。
 现在回顾源码,`_int_malloc`中存在 如下结构:
+
 ```
 static void *
 _int_malloc (mstate av, size_t bytes)
@@ -101,8 +105,10 @@ _int_malloc (mstate av, size_t bytes)
     }
 }
 ```
+
 也就是说,只有malloc的大小不在fastbin和smallbin范围内(0x10~0xc0),且tchache为空,或者大于tcahce的最大大小时,才会触发该函数.
 下面先看一下`malloc_consolidate`函数的具体执行.
+
 ```
 static void malloc_consolidate(mstate av)
 {
@@ -218,31 +224,42 @@ static void malloc_consolidate(mstate av)
 # 图解过程:
 
 ## 1
+
 ```
   free(p1);
 ```
+
 注意这里图中的0x50是fastbins中的,而0x410是tcache中的.
 ![屏幕截图 2026-01-23 133404](/assets/ctf/47f237b471f011ba3384.webp)
 ![屏幕截图 2026-01-23 130545](/assets/ctf/4b34e2106c938c600a23.webp)
 ![屏幕截图 2026-01-23 130718](/assets/ctf/0cd886addaf098bb5fef.webp)
+
 ## 2
+
 ```
  void* p2 = malloc(CHUNK_SIZE);
 ```
+
 ![屏幕截图 2026-01-23 143016](/assets/ctf/246cfe6989b0af7bdc3a.webp)
 ![屏幕截图 2026-01-23 131337](/assets/ctf/5e37f015d5701eaed545.webp)
 这里已经通过执行`consolidate`将上面free的chunk合并掉了,并且会维护fastbin链表
+
 ## 3
+
 ```
 free(p1);
 ```
+
 ![屏幕截图 2026-01-23 133856](/assets/ctf/ad29cd1dfcc3f3b833e0.webp)
 ![屏幕截图](/assets/ctf/1bddea033d0ad46af197.webp)
 这里相当于利用uaf,再次free(p1).此时该处chunk的size改变,因此进入tcahche.0x410.
+
 ## 4
+
 ```
 void *p3 = malloc(CHUNK_SIZE);
 ```
+
 ![屏幕截图 2026-01-23 134810](/assets/ctf/2a7aeaadfef1c9978e9a.webp)
 ![屏幕截图 2026-01-23 135152 1](/assets/ctf/1bddea033d0ad46af197.webp)
 现在,再次malloc(0x410)就能获得被free的chunk,这时,不算uaf的p1,我们就有了两个指向同一物理地址的chunk指针. 

@@ -1,11 +1,12 @@
 ---
-layout: post
+layout: single
 title: "House of Techniques"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
 description: "整理 House of 系列堆利用技巧。"
 source_folder: "PWN/Heap Exploitation"
 lang: zh-CN
+excerpt: "整理 House of 系列堆利用技巧。"
 ---
 {% raw %}
 

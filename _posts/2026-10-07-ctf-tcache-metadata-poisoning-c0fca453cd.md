@@ -1,14 +1,17 @@
 ---
-layout: post
+layout: single
 title: "tcache_metadata_poisoning"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
 description: "记录 glibc 2.35 中 tcache_metadata_poisoning 的源码分析与调试过程。"
 source_folder: "PWN/Heap Exploitation/how2heap Debugging/2.35/tcache_metadata_poisoning"
 lang: zh-CN
+excerpt: "记录 glibc 2.35 中 tcache_metadata_poisoning 的源码分析与调试过程。"
 ---
 {% raw %}
+
 # POC
+
 ```
 #include <assert.h>
 #include <stdint.h>

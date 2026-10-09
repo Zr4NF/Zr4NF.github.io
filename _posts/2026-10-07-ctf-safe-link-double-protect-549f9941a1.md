@@ -1,14 +1,17 @@
 ---
-layout: post
+layout: single
 title: "safe_link_double_protect"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
 description: "记录 glibc 2.35 中 safe_link_double_protect 的源码分析与调试过程。"
 source_folder: "PWN/Heap Exploitation/how2heap Debugging/2.35/safe_link_double_protect"
 lang: zh-CN
+excerpt: "记录 glibc 2.35 中 safe_link_double_protect 的源码分析与调试过程。"
 ---
 {% raw %}
+
 # 源码
+
 ```
 #include <stdio.h>
 #include <stdlib.h>
@@ -141,8 +144,10 @@ int main(void)
 }
 
 ```
+
 这个样例在能控制tcache，且已知堆地址，但没有uaf等漏洞时非常好用。通过两次malloc解指针引用，一次xor加密，一次xor解密，利用glibc源码将目标地址写进tcache，进行任意地址分配。
 利用glibc源码如下：
+
 ```
 static __always_inline void *
 tcache_get (size_t tc_idx)
@@ -163,6 +168,7 @@ tcache_get (size_t tc_idx)
 
 # 攻击流程分析
 这里执行逻辑与上面有些许差异，为了更便于理解。
+
 ```
 	void *a = malloc(0x38);
 	void *b = malloc(0x38);
@@ -177,8 +183,10 @@ tcache_get (size_t tc_idx)
 	free(c);
 	free(d);
 ```
+
 此时堆布局如下，这里除了需进行堆布局，还需写value_chunk的data部分为目标地址，同时需要提前malloc两次为增加tcache中的count计数，绕过检测。
 ![屏幕截图 2026-02-08 183743](/assets/ctf/13fde08ce19db6023318.webp)
+
 ```
 	void *metadata = (void *)((long)(value) & ~(0xfff));
 	*(unsigned int*)(metadata+0xa0) = (long)(metadata)+((long)(value) & (0xfff));
@@ -188,11 +196,13 @@ tcache_get (size_t tc_idx)
 	_ = malloc(0x18);
 	char *vuln = malloc(0x18);
 ```
+
 这里需修改tcache布局如下，低地址部分写高地址tcache的地址，高地址tcache写存目标地址的chunk的地址。之后先malloc高地址tcache，将目标地址xor后写入tcache。
 ![屏幕截图 2026-02-08 184908](/assets/ctf/1c301580a12ea8db2c9b.webp)
 之后先malloc高地址tcache，将目标地址xor后写入tcache。这里能看到pwndbg已经算出正确的目标地址
 ![屏幕截图 2026-02-08 192248](/assets/ctf/7dfd6cb2031058e27ce9.webp)
 然后malloc低地址，将其指向的高地址tcache内存的目标地址再次xor，即可在tcache内写入正确的目标地址，再次malloc即可分配目标地址。
+
 ## 总结
 1. 需要能控制tcache，且heap地址可泄露，但没有uaf之类的漏洞。
 2. 申请两组大小不同，且相差0x10的chunk，每组两个。申请后全free。

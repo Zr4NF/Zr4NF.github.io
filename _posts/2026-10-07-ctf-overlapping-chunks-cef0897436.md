@@ -1,14 +1,17 @@
 ---
-layout: post
+layout: single
 title: "overlapping_chunks"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
 description: "记录 glibc 2.35 中 overlapping_chunks 的源码分析与调试过程。"
 source_folder: "PWN/Heap Exploitation/how2heap Debugging/2.35/overlapping_chunks"
 lang: zh-CN
+excerpt: "记录 glibc 2.35 中 overlapping_chunks 的源码分析与调试过程。"
 ---
 {% raw %}
+
 # PoC
+
 ```
 /*
 
@@ -93,36 +96,47 @@ int main(int argc , char* argv[])
 ```
 
 # 过程解释
+
 ## 1.
+
 ```
 	p1 = malloc(0x80 - 8);
 	p2 = malloc(0x500 - 8);
 	p3 = malloc(0x80 - 8);
 ```
+
 ![屏幕截图 2026-02-15 153905](/assets/ctf/d2a83332f726a68d68e0.webp)
 ![屏幕截图 2026-02-15 154436](/assets/ctf/9c2bfbfcd16a10d9fffd.webp)
 
 ## 2.
+
 ```
 	int evil_chunk_size = 0x581;
 	int evil_region_size = 0x580 - 8;
 	*(p2-1) = evil_chunk_size; 
 ```
+
 ![屏幕截图 2026-02-15 155307](/assets/ctf/1928c3fb158cec521ee5.webp)
 ![屏幕截图 2026-02-15 155628](/assets/ctf/e9a6ffcab3186ceaed78.webp)
+
 ## 3.
+
 ```
 	free(p2);
 ```
+
 ![屏幕截图 2026-02-15 154013](/assets/ctf/108f9795dc166ad2676e.webp)
 ![屏幕截图 2026-02-15 154753](/assets/ctf/61a8f9bef40f40100d72.webp)
 
 ## 4.
+
 ```
 	p4 = malloc(evil_region_size);
 ```
+
 ![屏幕截图 2026-02-15 154055](/assets/ctf/389d2ed635361b376ad9.webp)
 ![屏幕截图 2026-02-15 160554](/assets/ctf/1849b5116551972315b4.webp)
+
 # 攻击流程
 1. 需要能覆盖chunk的size位。
 2. 如下布局堆区，并覆盖目标chunk的prev chunk的size位，为更大size（至少覆盖下一个chunk的fd，bk，nextsize指针部分）。

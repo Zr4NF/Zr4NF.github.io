@@ -1,13 +1,15 @@
 ---
-layout: post
+layout: single
 title: "Advanced Mathematics"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "Write-up"]
 description: "记录 2026 年 ctf+ 比赛中 高等数学 题目的分析与解题过程。"
 source_folder: "Write-ups/2026/ctf+"
 lang: zh-CN
+excerpt: "记录 2026 年 ctf+ 比赛中 高等数学 题目的分析与解题过程。"
 ---
 {% raw %}
+
 # 源码
 
 ```c
@@ -147,6 +149,7 @@ int main()
 程序会取随机数，当作偏移处理数学式的符号，每40个算式取一次偏移，偏移都有6种可能，所以只要猜每次偏移都是0，就有 1/216 的概率获得flag。
 
 # exp
+
 ```python
 def s32(x):
     return u32(p32(x & 0xffffffff), sign='signed')

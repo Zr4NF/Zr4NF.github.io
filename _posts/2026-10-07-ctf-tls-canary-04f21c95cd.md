@@ -1,11 +1,12 @@
 ---
-layout: post
+layout: single
 title: "TLS canary"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
 description: "整理线程局部存储（TLS）与栈保护值 canary 的相关机制。"
 source_folder: "PWN/Stack Exploitation"
 lang: zh-CN
+excerpt: "整理线程局部存储（TLS）与栈保护值 canary 的相关机制。"
 ---
 {% raw %}
 
@@ -90,6 +91,7 @@ struct pthread {
 在这个结构体中，`stack_guard`字段存放的就是单线程的canary值。攻击者通常可以通过覆盖这个值的内容来绕过canary保护。
 
 汇编中的取用：
+
 ```asm
 fs:0x00  TCB 自引用相关字段
 fs:0x08  DTV 指针
@@ -134,6 +136,7 @@ fs:0x30  pointer_guard
 +--------------------------------------------------+
 低地址
 ```
+
 # 测试程序
 
 ```c
@@ -356,6 +359,7 @@ tls_var value       = 0x1234567a
 - 如果没有新建线程，那只能通过任意写修改tls，因tls一般由`nmap()`分配，由该函数分配的地址一般在 libc 上下，所以可以通过 libc 地址进行偏移计算。
 
 *anon为`nmap()`申请部分：*
+
 ```asm
 pwndbg> vmmap
 LEGEND: STACK | HEAP | CODE | DATA | WX | RODATA

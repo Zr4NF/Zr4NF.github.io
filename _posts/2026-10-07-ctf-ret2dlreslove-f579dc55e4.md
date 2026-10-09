@@ -1,15 +1,17 @@
 ---
-layout: post
+layout: single
 title: "ret2dlreslove"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
 description: "整理 ret2dlresolve 与动态符号解析的利用思路。"
 source_folder: "PWN/Stack Exploitation/ret2dlreslove"
 lang: zh-CN
+excerpt: "整理 ret2dlresolve 与动态符号解析的利用思路。"
 ---
 {% raw %}
 
 # 结构体
+
 ## .dynamic
 
 该节存放了许多`Elf64_Dyn`结构体，在IDA中位于got表的上面，保存了`动态链接器`所需要的`基本信息`，比如存放了`ELF`文件其他节的标识和起始地址。结构体定义如下所示。
@@ -121,6 +123,7 @@ typedef struct {
 ## .rela.dyn
 
 该节，用于普通动态重定位，**程序加载时处理**，常见定位项：
+
 ```cpp
  __libc_start_main
  __gmon_start__
@@ -161,6 +164,7 @@ typedef struct {
 #define STB_LOPROC  13      /* Start of processor-specific */
 #define STB_HIPROC  15      /* End of processor-specific */
 ```
+
 绑定特征`0,1,2`均可取。
 
 
@@ -186,6 +190,7 @@ typedef struct {
 变量、函数分别取`1, 2` 即可。
 
 那么稍微总结一下得到`st_info`取值的一般规律如下：
+
 ```makefile
 绑定函数:        st_info = 0x12 例如: read,printf,__libc_start_main
 绑定全局变量:    st_info = 0x11 例如: stdin，stdout,_IO_stdin_used
@@ -202,6 +207,7 @@ typedef struct {
 |2|`.data`|
 |3|`.bss`|
 |4|`.rodata`|
+
 ## .dynstr
 
 
@@ -507,6 +513,7 @@ struct link_map
 ```
 
 无pie示例：
+
 ```cpp
 {
   l_addr = 0,
@@ -631,6 +638,7 @@ struct link_map
 ```
 
 开pie实例：
+
 ```cpp
 {
   l_addr = 93824992231424,
@@ -766,6 +774,7 @@ $5 = 0x555555554000
 - `ELFW(` 是 glibc / ELF 代码里常见的宏，用来根据当前平台自动选择 **32 位 ELF 类型/宏** 或 **64 位 ELF 类型/宏**。
 
 - 找 .dynamic 中的 tab 的地址
+
 ```cpp
 /*找 .dynamic 中的 tab 的地址*/
 #define D_PTR(map, i) \
@@ -792,11 +801,13 @@ dl_relocate_ld (const struct link_map *l)
 ```
 
 - 类型定义，用于定义需要绑定的函数所在的`link_map`
+
 ```cpp
 typedef struct link_map *lookup_t;
 ```
 
 - 处理偏移参数（参数从0开始，`.rela.plt`、`.rela.dyn`的参数分开计算）
+
 ```cpp
 /*把 PLT 传给动态链接器的参数 `pltn` 转换成 `.rel.plt` / `.rela.plt` 重定位表里的 字节偏移*/
 /*这里直接返回偏移，常规架构所传参数就是其在 tab 中的字节偏移*/
@@ -1010,6 +1021,7 @@ elf中的link_map与`_dl_runtime_resolve_xsavec()`指针在`.bss`段中`.got`段
 ## 触发
 
 汇编层面，延迟绑定第一次执行函数执行流如下：
+
 ```asm
 call func@plt
 
@@ -1031,6 +1043,7 @@ jmp qword ptr [_dl_runtime_resolve_xsavec.got]
 - 通过栈溢出，劫持执行流，在栈上布置两个指针（可以为真实指针或伪造的结构体指针）、返回地址，模拟执行
 
 **触发前栈布局：**
+
 ```
    <- rsp
 ...
@@ -1042,6 +1055,7 @@ ret_addr
 ```
 
 **出发后栈布局：**
+
 ```
 rela_off              <-rsp
 link_map_ptr
@@ -1092,6 +1106,7 @@ ret_addr
 所以此时，利用方式与上面完全一样，仍然可以在`.got`表进行伪造，只是很难泄露 ld 的地址。
 
 下面介绍一个结构体：
+
 ```cpp
 /*
    运行时动态链接器使用的传统 rendezvous 结构，
@@ -1132,6 +1147,7 @@ struct r_debug
 ```
 
 是一个用于向调试器传递信息的结构体，也被定义在`.synamic`中：
+
 ```cpp
 #define DT_DEBUG 21 /* For debugging; unspecified */
 ```

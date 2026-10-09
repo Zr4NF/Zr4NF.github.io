@@ -1,0 +1,11 @@
+main:
+  - title: Posts
+    url: /
+  - title: Archive
+    url: /archive/
+  - title: About
+    url: /about/
+  - title: CTF
+    url: /ctf/
+  - title: GitHub
+    url: https://github.com/Zr4NF

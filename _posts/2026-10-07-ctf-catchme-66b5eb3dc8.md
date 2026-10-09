@@ -1,13 +1,15 @@
 ---
-layout: post
+layout: single
 title: "catchme"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "Write-up"]
 description: "记录 2026ciscnccb半决 比赛中 catchme 题目的分析与解题过程。"
 source_folder: "Write-ups/2026/2026 CISCN CCB Semifinals"
 lang: zh-CN
+excerpt: "记录 2026ciscnccb半决 比赛中 catchme 题目的分析与解题过程。"
 ---
 {% raw %}
+
 # 信息
 
 无沙箱，libc 2.27
@@ -40,6 +42,7 @@ c程序，`dele()`部分有uaf，`add()`函数只能申请三种大小：
 有`clear()`函数，可以主动清空chunk数组，没有对申请的数量有限制。
 
 `edit()`函数只能写入chunk 0x8偏移，向后0x18长度的字节：
+
 ```c
     puts("you can retag at most three times");
     --dword_202014;
@@ -61,6 +64,7 @@ c程序，`dele()`部分有uaf，`add()`函数只能申请三种大小：
 
 失败的一种思路，就是这题可以通过堆风水控制1、2类型chunk的fd指针的，但给的chunk size有限制，虽然可以通过largebin attack打全局fast，但是由于是低版本没有指针保护，打fastbin时找不到hook附近有合适的地址能绕过size检测，所以考虑打tc。
 看如下源码：
+
 ```c
 #if USE_TCACHE
   {
@@ -76,6 +80,7 @@ c程序，`dele()`部分有uaf，`add()`函数只能申请三种大小：
   }
 #endif
 ```
+
 也就是说，只要用 largebin at 把`mp_`结构体的`tcache_bins`改掉，就能把更大的chunk放进tc，结合上面就能打 tc 投毒。
 
 # exp
@@ -136,4 +141,5 @@ for i in range(61):
         io.close()
         continue
 ```
+
 {% endraw %}

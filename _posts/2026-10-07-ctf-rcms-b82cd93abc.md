@@ -1,18 +1,21 @@
 ---
-layout: post
+layout: single
 title: "rcms"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "Write-up"]
 description: "记录 2025 年 das 比赛中 rcms 题目的分析与解题过程。"
 source_folder: "Write-ups/2025/das/rcms"
 lang: zh-CN
+excerpt: "记录 2025 年 das 比赛中 rcms 题目的分析与解题过程。"
 ---
 {% raw %}
 这题主要难度在泄露libc版本，第一次远程打poison没过有点懵，仔细一想可能是低版本libc，没有指针保护。原题libc为2.27，可以随意两次tc poison泄pie实现任意地址读与任意地址写后，打hook。这里用2.39打。
+
 # 反编译
 没有删符号，只需要恢复两个数组。
 ![QQ20260304-000941](/assets/ctf/906bbf17904bdc219012.webp)
 给了一个gift函数直接读shellcode。
+
 ```c
 unsigned __int64 gift()
 {
@@ -35,6 +38,7 @@ unsigned __int64 gift()
   return __readfsqword(0x28u) ^ v4;
 }
 ```
+
 # 攻击思路
 
 这题限制不多，且很多uaf，直接申请很多chunk泄露libc和heap。然后一次tc poison泄露堆区存的gift函数地址。
@@ -42,8 +46,10 @@ unsigned __int64 gift()
 一次tc poison打`heap_list[]`获得任意地址泄露与任意地址读取，打apple2。
 
 这里也可以直接一次tc poison打apple2。
+
 # exp：
 这里libc版本为2.39，伪造IO file需要写lock（2.38及以上都需要）。
+
 ```python
 from pwncli import *
 import sys
@@ -217,4 +223,5 @@ sla(b"what are u want say to me?", shellcode)
 
 io.interactive()
 ```
+
 {% endraw %}

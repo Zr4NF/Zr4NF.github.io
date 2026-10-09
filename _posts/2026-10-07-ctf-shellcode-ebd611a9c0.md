@@ -1,15 +1,17 @@
 ---
-layout: post
+layout: single
 title: "shellcode"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "Write-up"]
 description: "记录 2026 年 ctf+ 比赛中 shellcode 题目的分析与解题过程。"
 source_folder: "Write-ups/2026/ctf+"
 lang: zh-CN
+excerpt: "记录 2026 年 ctf+ 比赛中 shellcode 题目的分析与解题过程。"
 ---
 {% raw %}
 
 # 反编译
+
 ```cpp
 int __fastcall main(int argc, const char **argv, const char **envp)
 {
@@ -34,6 +36,7 @@ int __fastcall main(int argc, const char **argv, const char **envp)
 
 所以，第一次调用要先改内存权限，再写入下次 shellcode ：
 ![shellcode0](/assets/ctf/f5f8187e16e05db93832.webp)
+
 ```python
     sc0 = bytes(asm(''' mov dl, 0xf
                         push 0xa
@@ -55,6 +58,7 @@ int __fastcall main(int argc, const char **argv, const char **envp)
 ![shellcode](/assets/ctf/8a990ee101bf3895ff36.webp)
 
 这次的写入，长度明显不足以 get shell，所以需要在构造一次长的写入：
+
 ```python
     sc1 = bytes(asm('''
                 start:
@@ -80,6 +84,7 @@ int __fastcall main(int argc, const char **argv, const char **envp)
 
 
 # exp
+
 ```python
 def pwn():
     sc0 = bytes(asm(''' mov dl, 0xf

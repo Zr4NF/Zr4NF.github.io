@@ -1,14 +1,17 @@
 ---
-layout: post
+layout: single
 title: "decrypt_safe_linking"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
 description: "记录 glibc 2.35 中 decrypt_safe_linking 的源码分析与调试过程。"
 source_folder: "PWN/Heap Exploitation/how2heap Debugging/2.35/decrypt_safe_linking"
 lang: zh-CN
+excerpt: "记录 glibc 2.35 中 decrypt_safe_linking 的源码分析与调试过程。"
 ---
 {% raw %}
+
 # 源码
+
 ```
 #include <stdio.h>
 #include <stdlib.h>
@@ -79,11 +82,13 @@ int main()
 ```
 
 这个样例实际演示了一个glibc中堆对链表指针保护机制，glibc中有如下两个宏：
+
 ```
 #define PROTECT_PTR(pos, ptr) \
   ((__typeof (ptr)) ((((size_t) pos) >> 12) ^ ((size_t) ptr)))
 #define REVEAL_PTR(ptr)  PROTECT_PTR (&ptr, ptr)
 ```
+
 存在堆内存中的fastbin的fd指针和tcache中的next指针会被如上两个宏加密，即通过heap段再内存中页表地址去掉后三个零与被保护指针做xor。解密即逆向运算
 因此，在面对有ASLR保护时，经常需要泄露堆地址才能进行下一步利用。
 {% endraw %}

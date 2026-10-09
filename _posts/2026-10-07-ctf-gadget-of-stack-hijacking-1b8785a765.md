@@ -1,15 +1,20 @@
 ---
-layout: post
+layout: single
 title: "Gadget of Stack Hijacking"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
 description: "记录栈劫持中的 gadget 与控制流利用技巧。"
 source_folder: "PWN"
 lang: zh-CN
+excerpt: "记录栈劫持中的 gadget 与控制流利用技巧。"
 ---
 {% raw %}
+
+# Gadget of Stack Hijacking
+
 `getkeyserv_handle+576`
 2.35
+
 ```
 <getkeyserv_handle+576>:	mov    rdx,QWORD PTR [rdi+0x8]
 <getkeyserv_handle+580>:	mov    QWORD PTR [rsp],rax
@@ -18,6 +23,7 @@ lang: zh-CN
 
 `setcontext+61`
 2.35
+
 ```
    <setcontext+61>:	mov    rsp,QWORD PTR [rdx+0xa0]
    <setcontext+68>:	mov    rbx,QWORD PTR [rdx+0x80]
@@ -70,4 +76,5 @@ lang: zh-CN
    <setcontext+288>:	push   r10
    <setcontext+290>:	ret
 ```
+
 {% endraw %}

@@ -1,23 +1,63 @@
 title: Zr4NF
+name: Zr4NF
 description: 安全研究与技术笔记
 url: https://zr4nf.github.io
 baseurl: ""
+locale: en-US
 lang: en
 timezone: Asia/Shanghai
+remote_theme: mmistakes/minimal-mistakes@4.28.0
+minimal_mistakes_skin: dark
+repository: Zr4NF/Zr4NF.github.io
 permalink: /posts/:title/
 markdown: kramdown
 highlighter: rouge
 kramdown:
   input: GFM
+  auto_ids: true
+  syntax_highlighter: rouge
+plugins:
+  - jekyll-remote-theme
+  - jekyll-include-cache
+  - jekyll-sitemap
+  - jekyll-feed
+search: true
+search_full_content: true
+atom_feed:
+  hide: true
+author:
+  name: Zr4NF
+  links:
+    - label: GitHub
+      icon: fab fa-fw fa-github
+      url: https://github.com/Zr4NF
+footer:
+  links:
+    - label: GitHub
+      icon: fab fa-fw fa-github
+      url: https://github.com/Zr4NF
 defaults:
   - scope:
       path: ""
       type: posts
     values:
-      layout: post
+      layout: single
+      toc: true
+      toc_sticky: true
+      toc_label: Contents
+      author_profile: false
+      read_time: false
+      share: false
+      related: false
+      comments: false
+  - scope:
+      path: ""
+      type: pages
+    values:
+      layout: single
+      author_profile: false
 exclude:
   - README.md
   - Gemfile
   - Gemfile.lock
   - vendor
-

@@ -1,14 +1,17 @@
 ---
-layout: post
+layout: single
 title: "tcache_house_of_spirit"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
 description: "记录 glibc 2.35 中 tcache_house_of_spirit 的源码分析与调试过程。"
 source_folder: "PWN/Heap Exploitation/how2heap Debugging/2.35/tcache_house_of_spirit"
 lang: zh-CN
+excerpt: "记录 glibc 2.35 中 tcache_house_of_spirit 的源码分析与调试过程。"
 ---
 {% raw %}
+
 # POC
+
 ```
 #include <stdio.h>
 #include <stdlib.h>
@@ -55,9 +58,11 @@ int main()
 	assert((long)b == (long)&fake_chunks[2]);
 }
 ```
+
 该利用通过在已知地址（地址结尾为0x08或）写size（tcache范围内，结尾为0x0001或0x0000，不检查inuse标志位，但会检查另外两个）伪造chunk，之后free该chunk，再次malloc即可扩大可写范围。
 
 # free（tcache部分）源码
+
 ```
 #if USE_TCACHE
   {
@@ -101,5 +106,6 @@ int main()
   }
 #endif
 ```
+
 可以看到，该部分检查只检查被free的chunk和链表，而不对next chunk做任何检查。
 {% endraw %}

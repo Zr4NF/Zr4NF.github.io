@@ -1,14 +1,17 @@
 ---
-layout: post
+layout: single
 title: "sysmalloc_int_free"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
 description: "记录 glibc 2.35 中 sysmalloc_int_free 的源码分析与调试过程。"
 source_folder: "PWN/Heap Exploitation/how2heap Debugging/2.35/sysmalloc_int_free"
 lang: zh-CN
+excerpt: "记录 glibc 2.35 中 sysmalloc_int_free 的源码分析与调试过程。"
 ---
 {% raw %}
+
 # 源码
+
 ```
 #define _GNU_SOURCE
 
@@ -190,8 +193,11 @@ int main() {
          old - (MALLOC_ALIGN / SIZE_SZ));
 }
 ```
+
 这个样例通过`malloc()`中的`sysmalloc()`调用`int_free()`，将任意大小的chunk free进bins中，再没有直接的`free()函数`调用的情况下非常关键。
+
 # sysmalloc源码分析
+
 ```
 static void *
 sysmalloc (INTERNAL_SIZE_T nb, mstate av)
@@ -613,7 +619,9 @@ sysmalloc (INTERNAL_SIZE_T nb, mstate av)
   return 0;
 }
 ```
+
 [源码分析](/posts/ctf-note-648b8001d0/)
+
 # 攻击流程
 1. 能申请任意大小（或任意次数），或能修改top chunk 的size大小，使top size为所需`chunk的大小+0x20`；需要进行free才能进行下一步攻击。
 2. 使top chunk size为`需要free的chunk的大小+0x20`，若要修改top chunk size，则需要使整个伪造的heap区0x1000对齐（page aligned）

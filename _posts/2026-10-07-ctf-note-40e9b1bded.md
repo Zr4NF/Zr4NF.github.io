@@ -1,19 +1,22 @@
 ---
-layout: post
+layout: single
 title: "Brute-force Scripts"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "PWN"]
 description: "整理爆破脚本的编写与使用方法。"
 source_folder: "PWN"
 lang: zh-CN
+excerpt: "整理爆破脚本的编写与使用方法。"
 ---
 {% raw %}
+
 # 结构
 比较常用的一个控制语句是`try / except / else / finally`
 
 它们的执行规则是：先执行 `try`；如果 `try` 里没异常，`except` 跳过；如果发生了匹配的异常，就执行对应的 `except`；`finally` 不管有没有异常，都会在整个 `try` 语句结束前执行。
 
 常用写法：
+
 ```python
 try:  
     x = int(input("请输入数字: "))  
@@ -75,4 +78,5 @@ for i in range(61):
         io.close()
         continue
 ```
+
 {% endraw %}

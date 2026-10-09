@@ -1,11 +1,12 @@
 ---
-layout: post
+layout: single
 title: "Throne Hazard"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "Write-up"]
 description: "记录 2026 年 polar 比赛中 Throne Hazard 题目的分析与解题过程。"
 source_folder: "Write-ups/2026/polar/PWN"
 lang: zh-CN
+excerpt: "记录 2026 年 polar 比赛中 Throne Hazard 题目的分析与解题过程。"
 ---
 {% raw %}
 
@@ -31,11 +32,13 @@ lang: zh-CN
  0014: 0x06 0x00 0x00 0x7fff0000  return ALLOW
  0015: 0x06 0x00 0x00 0x00050001  return ERRNO(1)
 ```
+
 ban了`execve`、`execveat`，不能get shell，甚至ban了`mprotect`，shellcode打orw也不行。
 
 ## 思路
 
 程序有一个toctou，开头会调如下函数：
+
 ```c
 void __fastcall __noreturn start_routine()
 {
@@ -79,6 +82,7 @@ void __fastcall __noreturn start_routine()
 注意到会先`sleep(120000~0x2BF20  + 120000)`，这段时间中，`toctou_len`变量的大小会被改成之前可以指定的值，再次`sleep(18000~0x4650+ 18000)`之后，会被重新赋值为`0x20`。
 
 再注意choice2：
+
 ```c
  case 2uLL:
         byte = 0;
@@ -111,6 +115,7 @@ LABEL_37:
         }
         break;
 ```
+
 也就是说，卡好时间就能进行越写。
 
 先正常申请一次 capsule，再申请 actuator。之后利用toutoc越写把 actuator 改成：
@@ -130,6 +135,7 @@ LABEL_37:
 5. 循环执行 `read(3, 0x404300, 3)`，用 lane0 读 `0x404300` 就是 flag
 
 ## exp
+
 ```python
 def cmd(choi):
     sla(b"> ", n2ds(choi))

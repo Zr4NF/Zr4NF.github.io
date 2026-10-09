@@ -1,14 +1,17 @@
 ---
-layout: post
+layout: single
 title: "linklist"
 date: 2026-10-07 20:05:00 +0800
 tags: ["CTF", "Write-up"]
 description: "记录 2026 年 sh 比赛中 linklist 题目的分析与解题过程。"
 source_folder: "Write-ups/2026/sh/linklist"
 lang: zh-CN
+excerpt: "记录 2026 年 sh 比赛中 linklist 题目的分析与解题过程。"
 ---
 {% raw %}
+
 # 信息
+
 ```
     Arch:       amd64-64-little
     RELRO:      Partial RELRO

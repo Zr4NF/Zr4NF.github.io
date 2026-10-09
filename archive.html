@@ -6,10 +6,10 @@ permalink: /archive/
 <p>按分类与文件夹整理的 {{ site.posts | size }} 篇技术笔记。</p>
 <section class="folder-tree" aria-label="Notes by folder">{% assign blockchain_posts = site.posts | where_exp: "post", "post.tags contains 'Blockchain'" %}
 {% if blockchain_posts.size > 0 %}
-<details class="folder" open><summary><span>Blockchain</span><span class="folder-count">{{ blockchain_posts | size }} notes</span></summary><div class="folder-content">
+<details class="folder"><summary><span>Blockchain</span><span class="folder-count">{{ blockchain_posts | size }} notes</span></summary><div class="folder-content">
 {% assign blockchain_groups = blockchain_posts | group_by: "source_folder" %}
 {% for group in blockchain_groups %}
-<details class="folder" open><summary><span>{{ group.name | split: '/' | last | escape }}</span><span class="folder-count">{{ group.items | size }} notes</span></summary><div class="folder-content">
+<details class="folder"><summary><span>{{ group.name | split: '/' | last | escape }}</span><span class="folder-count">{{ group.items | size }} notes</span></summary><div class="folder-content">
 {% for post in group.items %}<a class="folder-note" href="{{ post.url | relative_url }}">{{ post.title | escape }}</a>{% endfor %}
 </div></details>
 {% endfor %}

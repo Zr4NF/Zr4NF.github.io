@@ -1,11 +1,75 @@
 ---
 layout: default
 ---
-<article class="post">
+<article class="post post-with-toc">
+  <div class="post-main">
   <a class="back" href="{{ '/' | relative_url }}">All Posts</a>
   <div class="post-meta"><time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: '%Y.%m.%d' }}</time>{% for tag in page.tags %}<span class="tag">{{ tag | escape }}</span>{% endfor %}</div>
   <h1>{{ page.title | escape }}</h1>
   {% if page.description %}<p class="intro">{{ page.description | escape }}</p>{% endif %}
   <div class="prose" lang="{{ page.lang | default: site.lang }}">{{ content }}</div>
+  </div>
+  <aside class="post-toc" hidden>
+    <details>
+      <summary>Contents</summary>
+      <nav aria-label="Article contents"><ol class="toc-list"></ol></nav>
+    </details>
+  </aside>
 </article>
+<script>
+(() => {
+  const article = document.querySelector('.post-with-toc');
+  if (!article) return;
+  const sidebar = article.querySelector('.post-toc');
+  const details = sidebar.querySelector('details');
+  const list = sidebar.querySelector('.toc-list');
+  const headings = Array.from(article.querySelectorAll('.prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6')).filter(h => h.textContent.trim());
+  if (!headings.length) return;
+  const baseLevel = Math.min(...headings.map(h => Number(h.tagName.slice(1))));
+  const links = headings.map((heading, index) => {
+    if (!heading.id) {
+      let id = 'toc-section-' + (index + 1);
+      while (document.getElementById(id)) id += '-';
+      heading.id = id;
+    }
+    const item = document.createElement('li');
+    item.style.setProperty('--toc-depth', Number(heading.tagName.slice(1)) - baseLevel);
+    const link = document.createElement('a');
+    link.href = '#' + encodeURIComponent(heading.id);
+    link.textContent = heading.textContent.trim();
+    item.appendChild(link);
+    list.appendChild(item);
+    return link;
+  });
+  sidebar.hidden = false;
+  article.classList.add('has-toc');
+  const narrow = window.matchMedia('(max-width: 960px)');
+  const setOpen = () => { details.open = !narrow.matches; };
+  setOpen();
+  narrow.addEventListener('change', setOpen);
+  list.addEventListener('click', event => {
+    if (event.target.closest('a') && narrow.matches) details.open = false;
+  });
+  let pending = false;
+  const updateActive = () => {
+    pending = false;
+    let active = 0;
+    headings.forEach((heading, index) => {
+      if (heading.getBoundingClientRect().top <= 100) active = index;
+    });
+    if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) active = headings.length - 1;
+    links.forEach((link, index) => {
+      if (index === active) link.setAttribute('aria-current', 'location');
+      else link.removeAttribute('aria-current');
+    });
+  };
+  const requestUpdate = () => {
+    if (!pending) { pending = true; window.requestAnimationFrame(updateActive); }
+  };
+  window.addEventListener('scroll', requestUpdate, { passive: true });
+  window.addEventListener('resize', requestUpdate);
+  window.addEventListener('load', requestUpdate);
+  updateActive();
+})();
+</script>
 

@@ -39,6 +39,14 @@ $masthead-link-color-hover: #69b4ff;
   z-index:100;
   background-color:$background-color;
   animation:none;
+  transition:transform .22s ease;
+  will-change:transform;
+}
+.masthead.masthead--hidden{
+  transform:translateY(-100%);
+}
+@media(prefers-reduced-motion:reduce){
+  .masthead{transition:none}
 }
 html{scroll-padding-top:6rem}
 .page__content :is(h1,h2,h3,h4,h5,h6){scroll-margin-top:6rem}

@@ -152,6 +152,7 @@ unlink_chunk (mstate av, mchunkptr p)
 
 布局示例：
 ![IMG-20260509165328737](/assets/ctf/d7f7ae6005e77ab46cb9.webp)
+
 ### 利用效果[](https://roderickchan.github.io/zh-cn/2023-02-27-house-of-all-about-glibc-heap-exploitation/#%e5%88%a9%e7%94%a8%e6%95%88%e6%9e%9c-1)
 
 - 构造 `chunk overlap` 后，可以任意地址分配
@@ -293,6 +294,7 @@ unlink_chunk (mstate av, mchunkptr p)
 ![IMG-20260510182555110](/assets/ctf/6305dd1805cc2bc07aa6.webp)
 
 例子：
+
 ```python
 fake_IO_file = flat({
     0: '/bin/sh\x00', 
@@ -308,6 +310,7 @@ fake_IO_file = flat({
 **stage3：触发**
 
 - 申请非 `0x60` 大小的 `chunk` 的时候，首先触发 `unsortedbin attack`，将`_IO_list_all` 修改为 `main_arena+88`，然后 `unsortedbin chunk` 会进入到 `smallbin`，大小为 `0x60`；接着遍历 `unsortedbin` 的时候触发了 `malloc_printerr`，然后调用链为： `malloc_printerr -> libc_message -> abort -> _IO_flush_all_lockp`，调用到伪造的 `vtable` 里面的函数指针
+
 ### 相关技巧[](https://roderickchan.github.io/zh-cn/2023-02-27-house-of-all-about-glibc-heap-exploitation/#%e7%9b%b8%e5%85%b3%e6%8a%80%e5%b7%a7-4)
 
 - 在 `glibc-2.24` 后加入了 `vtable` 的 `check`，不能任意地址伪造 `vatble` 了，但是可以利用 `IO_str_jumps` 结构进行利用。
@@ -473,6 +476,7 @@ free 逻辑：
 - 根据偏移计算出来 `chunk size`，修改 `chunk A` 的 `size` 为计算出来的值，释放 `chunk A` 到地址 `X` 处
 - 此时，`A->fd` 就被写入了 `Y`(被指针保护的)
 - 通过打印即可泄露出 `Y` 的信息
+
 ```cpp
 chunk_0->size = fake_size = (target - &main_arena.fastbinsY) x 2 + 0x20
 free(chunk_0)
@@ -480,6 +484,7 @@ malloc(fake_size)
 
 print(protect_ptr(&chunk_0, chunk_0->fd))
 ```
+
 ![IMG-20260511194948825](/assets/ctf/08d99462a0a796cdadff.webp)
 
 **任意地址写一`long`任意值：**`fastbin_Y_chunk = chunk_0->fd`，`target = chunk_0; target = C`
@@ -490,6 +495,7 @@ print(protect_ptr(&chunk_0, chunk_0->fd))
 - 此时，`A->fd` 就被写入了 `Y`(被指针保护的)
 - 修改 `A->fd` 为目标值
 - 分配一次 `chunk A` 就可以把地址 `X` 存储的值为任意值
+
 ```cpp
 chunk_0->size = fake_size = (target - &main_arena.fastbinsY) x 2 + 0x20
 free(chunk_0)
@@ -497,6 +503,7 @@ free(chunk_0)
 chunk_0->fd = protect_ptr(&chunk_0, C)
 malloc(fake_size)
 ```
+
 ![IMG-20260511210120895](/assets/ctf/0dc2a130459638d1130d.webp)
 
 **向任意地址写一内存中的值：**
@@ -506,6 +513,7 @@ malloc(fake_size)
 - 根据偏移计算 `chunk size 0`，先释放 `chunk A` 到地址 `X` 处，此时有地址 `X` 处存储 `chunk A` 地址，`chunk A->fd` 为 `Y`(被指针保护的)
 - 根据偏移计算 `chunk size 1`，再次释放 `chunk A` 到地址 `M` 处，此时有地址 `M` 处存储 `chunk A` 地址，`chunk A->fd` 为 `N`(被指针保护的)
 - 修正 `chunk A` 的大小为 `chunk size 0`，分配 `1` 次 `chunk` 即可使得 `N` 转移到地址 `X` 处，当然在转移的过程中可以适当的修改 `N`(被指针保护的)
+
 ```cpp
 chunk_0->size = fake_size_0 = (target - &main_arena.fastbinsY) x 2 + 0x20
 free(chunk_0)
@@ -526,6 +534,7 @@ malloc(fake_size_0)
 - 适当控制 `global_max_fast` 的大小，把握控制的空间范围
 - 可以和 `IO_FILE` 结合起来泄露信息
 - 可以通过劫持执行流到`dl_resolve + off`,在ld中找`int 0x80`或`syscall`进行srop
+
 ### 利用效果[](https://roderickchan.github.io/zh-cn/2023-02-27-house-of-all-about-glibc-heap-exploitation/#%e5%88%a9%e7%94%a8%e6%95%88%e6%9e%9c-8)
 
 - 任意地址读写
@@ -533,6 +542,7 @@ malloc(fake_size_0)
 - 无libc下，多线程爆破libc偏移
 
 ## 2.10-House of Husk
+
 ### 漏洞成因[](https://roderickchan.github.io/zh-cn/2023-02-27-house-of-all-about-glibc-heap-exploitation/#%e6%bc%8f%e6%b4%9e%e6%88%90%e5%9b%a0-9)
 
 堆溢出
@@ -650,6 +660,7 @@ if (spec <= UCHAR_MAX
 - 执行 `one_gadget`
 - 执行 `rop` 控制程序执行流
 - 两次调用一参都为栈地址，可以通过将调用处改为 puts 函数泄露栈地址
+
 ## 2.11-House of Atum[](https://roderickchan.github.io/zh-cn/2023-02-27-house-of-all-about-glibc-heap-exploitation/#211-house-of-atum)
 
 ### 漏洞成因[](https://roderickchan.github.io/zh-cn/2023-02-27-house-of-all-about-glibc-heap-exploitation/#%e6%bc%8f%e6%b4%9e%e6%88%90%e5%9b%a0-10)
@@ -674,7 +685,8 @@ if (spec <= UCHAR_MAX
 ### 相关技巧
 
 - `2.30` 之后逻辑变了，原来是判断 `entry[idx]!=NULL`，`2.31` 之后判断 `count[idx] > 0`
-```c  
+
+```c
 // glibc ≥ 2.30
 void *
 __libc_malloc (size_t bytes)
@@ -1161,6 +1173,7 @@ struct exit_function_list *__exit_funcs = &initial;
 这里可以通过覆盖调用的函数指针，调用任意代码段。
 
 2.36及其以下
+
 ```cpp
   if (run_list_atexit)
     RUN_HOOK (__libc_atexit, ());
@@ -1174,7 +1187,9 @@ do {									      \
     (*(__##NAME##_hook_function_t *) *ptr) ARGS;			      \
 } while (0)
 ```
+
 2.37及其以上改成如下调用，故失效：
+
 ```cpp
 if (run_list_atexit)
     call_function_static_weak (_IO_cleanup);
@@ -1187,6 +1202,7 @@ if (run_list_atexit)
 调用点一：加锁函数
 2.23-2.33
 可以通过劫持`rtld_global`，后伪造相应位置，控制一参对应地址内容，并劫持执行流。
+
 ```cpp
 for (Lmid_t ns = GL(dl_nns) - 1; ns >= 0; --ns)
     {
@@ -1198,6 +1214,7 @@ for (Lmid_t ns = GL(dl_nns) - 1; ns >= 0; --ns)
 ```
 
 调用点二：析构函数
+
 ```c
 for (i = 0; i < nmaps; ++i)
 {
@@ -1700,6 +1717,7 @@ _IO_wstrn_overflow (FILE *fp, wint_t c)
     这里的 `doallocate` 对应 `struct _IO_jump_t.__doallocate`，相对 `B` 的偏移是 **`0x68`**，字段大小 **`0x8`**。
 - libc 2.38 及以上版本需要向 `lock` 处写入原 `lock` 的地址。  
     这个 `lock` 对应 `struct _IO_FILE._lock`，相对 `fp` 的偏移是 **`0x88`**，字段大小 **`0x8`**。
+
 ### 利用效果[](https://roderickchan.github.io/zh-cn/2023-02-27-house-of-all-about-glibc-heap-exploitation/#%e5%88%a9%e7%94%a8%e6%95%88%e6%9e%9c-24)
 
 - 任意函数执行

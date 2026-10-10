@@ -79,3 +79,18 @@ html{scroll-padding-top:6rem}
   font-size:inherit;
   font-style:inherit;
 }
+
+/* Keep structured article content as readable as the body text. */
+.layout--single .page__content table,
+.layout--single .page__content blockquote{
+  font-size:clamp(15.5px,.8rem,17.5px);
+}
+.layout--single .page__content .notice,
+.layout--single .page__content .notice--primary,
+.layout--single .page__content .notice--info,
+.layout--single .page__content .notice--warning,
+.layout--single .page__content .notice--success,
+.layout--single .page__content .notice--danger,
+.layout--single .page__content .markdown-alert{
+  font-size:clamp(15.5px,.8rem,17.5px) !important;
+}

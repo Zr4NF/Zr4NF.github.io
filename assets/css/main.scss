@@ -88,7 +88,7 @@ html{scroll-padding-top:6rem}
 /* Keep structured article content as readable as the body text. */
 .layout--single .page__content table,
 .layout--single .page__content blockquote{
-  font-size:clamp(15.5px,.8rem,17.5px);
+  font-size:clamp(15px,.8rem,17px);
 }
 .layout--single .page__content .notice,
 .layout--single .page__content .notice--primary,
@@ -97,5 +97,5 @@ html{scroll-padding-top:6rem}
 .layout--single .page__content .notice--success,
 .layout--single .page__content .notice--danger,
 .layout--single .page__content .markdown-alert{
-  font-size:clamp(15.5px,.8rem,17.5px) !important;
+  font-size:clamp(15px,.8rem,17px) !important;
 }

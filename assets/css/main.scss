@@ -61,6 +61,16 @@ html{scroll-padding-top:6rem}
     max-height:none;
     overflow:visible;
   }
+  .sidebar__right.sticky .toc{
+    display:flex;
+    flex-direction:column;
+    max-height:calc(100vh - 12rem);
+  }
+  .sidebar__right.sticky .toc__menu{
+    min-height:0;
+    max-height:none;
+    overflow-y:auto;
+  }
 }
 
 /* Article pages: enlarge both sidebars and keep the content compact. */

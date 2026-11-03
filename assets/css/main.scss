@@ -109,3 +109,13 @@ html{scroll-padding-top:6rem}
 .layout--single .page__content .markdown-alert{
   font-size:clamp(15px,.8rem,17px) !important;
 }
+
+/* Lightweight site-wide visitor statistics in the footer. */
+.site-visitor-count{
+  margin-top:.45rem;
+  color:$muted-text-color;
+  font-size:.75em;
+}
+.site-visitor-count__separator{
+  margin-inline:.45em;
+}

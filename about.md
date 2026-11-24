@@ -14,3 +14,7 @@ permalink: /about/
 ## Contact
 
 [GitHub · Zr4NF](https://github.com/Zr4NF)
+
+## Friends
+
+- [amydam-1314](https://amydam-1314.github.io/)

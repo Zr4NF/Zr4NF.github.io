@@ -17,4 +17,4 @@ permalink: /about/
 
 ## Friends
 
-- [amydam-1314](https://amydam-1314.github.io/) `密码手`
+- [amydam-1314](https://amydam-1314.github.io/) `Crypto`
